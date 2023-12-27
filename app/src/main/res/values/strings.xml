@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Ask Gemini</string>
+
+    <string name="action_go">Go</string>
+    <string name="action_try">Try it</string>
+
+    <!-- Summarize sample strings -->
+    <string name="summarize_label">Text</string>
+    <string name="summarize_hint">Enter text to summarize</string>
+
+    <string name="menu_summarize_title">Generate text from text-only input</string>
+    <string name="menu_summarize_description">Sample app that summarizes text</string>
+
 </resources>
