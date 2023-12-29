@@ -19,7 +19,7 @@ val GenerativeViewModelFactory = object: ViewModelProvider.Factory {
                     // Initialize a GenerativeModel with the `gemini-pro` AI model for text generation
                     val generativeModel = GenerativeModel(
                         modelName = "gemini-pro",
-                        apiKey = ApiObject.apiKey,
+                        apiKey = Cupboard.apiKey,
                         generationConfig = config
                     )
                     SummarizeViewModel(generativeModel)

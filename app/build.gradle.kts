@@ -73,4 +73,6 @@ dependencies {
 
     implementation("io.coil-kt:coil-compose:2.5.0")
     implementation("com.google.ai.client.generativeai:generativeai:0.1.1")
+
+    implementation("com.github.jeziellago:compose-markdown:0.3.7") // Markdown Text
 }

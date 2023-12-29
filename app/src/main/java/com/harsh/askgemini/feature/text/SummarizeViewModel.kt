@@ -17,11 +17,9 @@ class SummarizeViewModel(private val generativeModel: GenerativeModel) : ViewMod
     fun summarize(inputText: String) {
         _uiState.value = SummarizeUiState.Loading
 
-        val prompt = "Summarize the following text for me: $inputText"
-
         viewModelScope.launch {
             try {
-                val response = generativeModel.generateContent(prompt)
+                val response = generativeModel.generateContent(inputText)
                 response.text?.let { outputText ->
                     _uiState.value = SummarizeUiState.Success(outputText = outputText)
                 }
@@ -34,12 +32,10 @@ class SummarizeViewModel(private val generativeModel: GenerativeModel) : ViewMod
     fun summarizeStreaming(inputText: String) {
         _uiState.value = SummarizeUiState.Loading
 
-        val prompt = "Summarize the following text for me: $inputText"
-
         viewModelScope.launch {
             try {
                 var outputText = ""
-                generativeModel.generateContentStream(prompt)
+                generativeModel.generateContentStream(inputText)
                     .collect { response ->
                         outputText += response.text
                         _uiState.value = SummarizeUiState.Success(outputText = outputText)
