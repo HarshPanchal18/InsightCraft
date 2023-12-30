@@ -3,6 +3,7 @@ package com.harsh.askgemini.feature.text
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -35,12 +37,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -50,7 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.harsh.askgemini.util.GenerativeViewModelFactory
 import com.harsh.askgemini.R
-import com.harsh.askgemini.util.Cupboard
+import com.harsh.askgemini.util.Cupboard.randomSuggestion
 import dev.jeziellago.compose.markdowntext.MarkdownText
 
 @Composable
@@ -70,6 +75,7 @@ fun SummarizedScreen(
     onSummarizeClicked: (String) -> Unit = {},
 ) {
     var textToSummarize by rememberSaveable { mutableStateOf("") }
+    var suggestion = rememberSaveable { randomSuggestion() }
 
     Column(
         modifier = Modifier.verticalScroll(rememberScrollState())
@@ -86,7 +92,12 @@ fun SummarizedScreen(
             OutlinedTextField(
                 value = textToSummarize,
                 onValueChange = { textToSummarize = it },
-                placeholder = { Text(text = Cupboard.recommendList.random()) },
+                placeholder = {
+                    Text(
+                        text = "What's cooking in your head?",
+                        fontFamily = FontFamily.SansSerif
+                    )
+                },
                 modifier = Modifier
                     .padding(12.dp)
                     .fillMaxWidth()
@@ -94,27 +105,54 @@ fun SummarizedScreen(
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.White,
                     unfocusedContainerColor = Color.White
+                ),
+                textStyle = TextStyle(
+                    fontFamily = FontFamily.SansSerif
                 )
             )
 
-            TextButton(
-                onClick = {
-                    if (textToSummarize.isNotBlank())
-                        onSummarizeClicked(textToSummarize)
-                },
-                modifier = Modifier.align(Alignment.End)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = stringResource(id = R.string.action_go),
-                    color = Color.Blue,
-                    fontWeight = FontWeight.ExtraBold
+                ElevatedSuggestionChip(
+                    onClick = {
+                        textToSummarize = suggestion
+                        suggestion = randomSuggestion()
+                    },
+                    label = {
+                        Text(
+                            text = suggestion,
+                            fontFamily = FontFamily.SansSerif
+                        )
+                    },
+                    modifier = Modifier
+                        .padding(start = 12.dp)
+                        .weight(1F),
                 )
-                Spacer(modifier = Modifier.width(5.dp))
-                Icon(
-                    Icons.Default.Send,
-                    contentDescription = "Send Icon",
-                    tint = Color.Blue
-                )
+
+                TextButton(
+                    onClick = {
+                        if (textToSummarize.isNotBlank())
+                            onSummarizeClicked(textToSummarize)
+
+                        suggestion = randomSuggestion()
+                    },
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.action_go),
+                        color = Color.Blue,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Icon(
+                        Icons.Default.Send,
+                        contentDescription = "Send Icon",
+                        tint = Color.Blue
+                    )
+                }
             }
         }
 
@@ -149,7 +187,8 @@ fun SuccessLayout(outputText: String) {
     Card(
         modifier = Modifier
             .padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(30.dp)),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.onSecondaryContainer
@@ -183,19 +222,28 @@ fun SuccessLayout(outputText: String) {
                 )
             }
 
-            MarkdownText(
-                markdown = outputText,
-                color = MaterialTheme.colorScheme.onSecondary,
-                fontSize = 15.sp,
-                modifier = Modifier
-                    .padding(start = 16.dp)
-                    .fillMaxWidth(),
-                isTextSelectable = true,
-                onClick = {
-                    localClipboardManager.setText(AnnotatedString(outputText))
-                    Toast.makeText(context, "Copied to clipboard!", Toast.LENGTH_SHORT).show()
-                }
-            )
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.large,
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            ) {
+                MarkdownText(
+                    markdown = outputText,
+                    color = MaterialTheme.colorScheme.onSecondary,
+                    style = TextStyle(fontFamily = FontFamily.SansSerif),
+                    fontSize = 15.sp,
+                    modifier = Modifier
+                        .padding(start = 10.dp)
+                        .fillMaxWidth(),
+                    isTextSelectable = true,
+                    onClick = {
+                        localClipboardManager.setText(AnnotatedString(outputText))
+                        Toast.makeText(context, "Copied to clipboard!", Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
         }
     }
 }

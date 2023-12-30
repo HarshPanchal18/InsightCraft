@@ -1,5 +1,6 @@
 package com.harsh.askgemini.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,8 +23,11 @@ fun MenuScreen(onItemClicked: (String) -> Unit = {}) {
         MenuItem("summarize", R.string.menu_summarize_title, R.string.menu_summarize_description)
     )
 
-    LazyColumn(modifier = Modifier.padding(vertical = 16.dp)) {
-        items(menuItems) { item ->
+    LazyColumn(
+        modifier = Modifier.padding(vertical = 16.dp),
+        verticalArrangement = Arrangement.Center
+    ) {
+        items(menuItems, key = { it.routeId }) { item ->
             ItemCard(item) { onItemClicked(item.routeId) }
         }
     }
