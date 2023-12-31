@@ -29,7 +29,7 @@ class SummarizeViewModel(private val generativeModel: GenerativeModel) : ViewMod
         }
     }
 
-    fun summarizeStreaming(inputText: String) {
+    suspend fun summarizeStreaming(inputText: String) {
         _uiState.value = SummarizeUiState.Loading
 
         viewModelScope.launch {

@@ -14,8 +14,10 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Card
@@ -24,6 +26,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -36,18 +39,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -57,6 +64,9 @@ import com.harsh.askgemini.util.GenerativeViewModelFactory
 import com.harsh.askgemini.R
 import com.harsh.askgemini.util.Cupboard.randomSuggestion
 import dev.jeziellago.compose.markdowntext.MarkdownText
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun SummarizeRoute(
@@ -65,10 +75,15 @@ internal fun SummarizeRoute(
     val summarizeUiState by summarizeViewModel.uiState.collectAsState()
 
     SummarizedScreen(summarizeUiState) { inputText ->
-        summarizeViewModel.summarizeStreaming(inputText = inputText)
+        CoroutineScope(Dispatchers.IO).launch {
+            summarizeViewModel.summarizeStreaming(inputText = inputText)
+        }
     }
 }
 
+var textCopyHolder: String = "" // Holding generated content to make copy to clipboard
+
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SummarizedScreen(
     uiState: SummarizeUiState = SummarizeUiState.Loading,
@@ -76,6 +91,7 @@ fun SummarizedScreen(
 ) {
     var textToSummarize by rememberSaveable { mutableStateOf("") }
     var suggestion = rememberSaveable { randomSuggestion() }
+    val localKeyboardManager = LocalSoftwareKeyboardController.current
 
     Column(
         modifier = Modifier.verticalScroll(rememberScrollState())
@@ -106,32 +122,47 @@ fun SummarizedScreen(
                     focusedContainerColor = Color.White,
                     unfocusedContainerColor = Color.White
                 ),
-                textStyle = TextStyle(
-                    fontFamily = FontFamily.SansSerif
-                )
+                textStyle = TextStyle(fontFamily = FontFamily.SansSerif),
+                trailingIcon = {
+                    if (textToSummarize.isNotEmpty()) {
+                        IconButton(onClick = {
+                            textToSummarize = ""
+                            localKeyboardManager?.show()
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Close, contentDescription = null,
+                                tint = Color.Black
+                            )
+                        }
+                    }
+                },
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Sentences,
+                    keyboardType = KeyboardType.Text,
+                    autoCorrect = true
+                ),
             )
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 6.dp),
+                    .padding(start = 12.dp, bottom = 6.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                ElevatedSuggestionChip(
-                    onClick = {
-                        textToSummarize = suggestion
-                        suggestion = randomSuggestion()
-                    },
-                    label = {
-                        Text(
-                            text = suggestion,
-                            fontFamily = FontFamily.SansSerif
-                        )
-                    },
-                    modifier = Modifier
-                        .padding(start = 12.dp)
-                        .weight(1F),
-                )
+                Row(modifier = Modifier.weight(1F)) {
+                    ElevatedSuggestionChip(
+                        onClick = {
+                            textToSummarize = suggestion
+                            suggestion = randomSuggestion()
+                        },
+                        label = {
+                            Text(
+                                text = suggestion,
+                                fontFamily = FontFamily.SansSerif
+                            )
+                        }
+                    )
+                }
 
                 TextButton(
                     onClick = {
@@ -139,14 +170,18 @@ fun SummarizedScreen(
                             onSummarizeClicked(textToSummarize)
 
                         suggestion = randomSuggestion()
+                        localKeyboardManager?.hide()
                     },
+                    modifier = Modifier.padding(horizontal = 5.dp)
                 ) {
                     Text(
                         text = stringResource(id = R.string.action_go),
                         color = Color.Blue,
                         fontWeight = FontWeight.ExtraBold
                     )
+
                     Spacer(modifier = Modifier.width(5.dp))
+
                     Icon(
                         Icons.Default.Send,
                         contentDescription = "Send Icon",
@@ -172,7 +207,11 @@ fun SummarizedScreen(
                 }
             }
 
-            is SummarizeUiState.Success -> SuccessLayout(outputText = uiState.outputText)
+            is SummarizeUiState.Success -> {
+                SuccessLayout(outputText = uiState.outputText)
+                textCopyHolder = uiState.outputText
+                //Log.d("output", "SuccessLayout: ${uiState.outputText}")
+            }
 
             is SummarizeUiState.Error -> ErrorLayout(errorMessage = uiState.errorMessage)
         }
@@ -239,7 +278,7 @@ fun SuccessLayout(outputText: String) {
                         .fillMaxWidth(),
                     isTextSelectable = true,
                     onClick = {
-                        localClipboardManager.setText(AnnotatedString(outputText))
+                        localClipboardManager.setText(AnnotatedString(textCopyHolder))
                         Toast.makeText(context, "Copied to clipboard!", Toast.LENGTH_SHORT).show()
                     }
                 )
