@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.harsh.askgemini.feature.text.SummarizeRoute
 import com.harsh.askgemini.ui.MenuScreen
 import com.harsh.askgemini.ui.theme.AskGeminiTheme
@@ -19,10 +20,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AskGeminiTheme {
+                val uiColor = MaterialTheme.colorScheme.primary.copy(0.45F)
+                val systemUiController = rememberSystemUiController()
+
+                systemUiController.setSystemBarsColor(color = uiColor)
+
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = uiColor
                 ) {
 
                     val navController = rememberNavController()

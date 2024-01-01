@@ -1,8 +1,6 @@
 package com.harsh.askgemini.feature.text
 
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,9 +26,9 @@ import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -51,7 +49,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -99,28 +96,33 @@ fun SummarizedScreen(
         ElevatedCard(
             modifier = Modifier
                 .padding(10.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(25.dp)),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF7DF098)
+                containerColor = Color(0xFFBAFD1A)
             ),
             shape = MaterialTheme.shapes.large,
         ) {
-            OutlinedTextField(
+            TextField(
                 value = textToSummarize,
                 onValueChange = { textToSummarize = it },
                 placeholder = {
                     Text(
                         text = "What's cooking in your head?",
-                        fontFamily = FontFamily.SansSerif
+                        fontFamily = FontFamily.SansSerif,
+                        modifier = Modifier.padding(start = 4.dp)
                     )
                 },
                 modifier = Modifier
                     .padding(12.dp)
                     .fillMaxWidth()
-                    .border(BorderStroke(1.5.dp, Color.Black), RoundedCornerShape(5.dp)),
+                    .clip(RoundedCornerShape(20.dp)),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White
+                    unfocusedContainerColor = Color.White,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent
                 ),
                 textStyle = TextStyle(fontFamily = FontFamily.SansSerif),
                 trailingIcon = {
@@ -176,7 +178,7 @@ fun SummarizedScreen(
                 ) {
                     Text(
                         text = stringResource(id = R.string.action_go),
-                        color = Color.Blue,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
                         fontWeight = FontWeight.ExtraBold
                     )
 
@@ -185,7 +187,7 @@ fun SummarizedScreen(
                     Icon(
                         Icons.Default.Send,
                         contentDescription = "Send Icon",
-                        tint = Color.Blue
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                 }
             }
@@ -210,7 +212,6 @@ fun SummarizedScreen(
             is SummarizeUiState.Success -> {
                 SuccessLayout(outputText = uiState.outputText)
                 textCopyHolder = uiState.outputText
-                //Log.d("output", "SuccessLayout: ${uiState.outputText}")
             }
 
             is SummarizeUiState.Error -> ErrorLayout(errorMessage = uiState.errorMessage)
@@ -251,13 +252,12 @@ fun SuccessLayout(outputText: String) {
                 )
 
                 Text(
-                    text = "Tap\nanswer\nto copy",
+                    text = "Tap to\ncopy",
                     color = MaterialTheme.colorScheme.onPrimary,
                     textAlign = TextAlign.Start,
                     fontSize = 13.sp,
-                    fontStyle = FontStyle.Italic,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 12.dp),
+                    modifier = Modifier.padding(top = 5.dp, end = 5.dp),
                 )
             }
 
@@ -265,16 +265,16 @@ fun SuccessLayout(outputText: String) {
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.large,
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    containerColor = MaterialTheme.colorScheme.onSecondary
                 )
             ) {
                 MarkdownText(
                     markdown = outputText,
-                    color = MaterialTheme.colorScheme.onSecondary,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                     style = TextStyle(fontFamily = FontFamily.SansSerif),
                     fontSize = 15.sp,
                     modifier = Modifier
-                        .padding(start = 10.dp)
+                        .padding(start = 6.dp, end = 6.dp, top = 8.dp, bottom = 16.dp)
                         .fillMaxWidth(),
                     isTextSelectable = true,
                     onClick = {
