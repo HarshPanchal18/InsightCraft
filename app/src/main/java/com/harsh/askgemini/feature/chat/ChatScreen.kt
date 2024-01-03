@@ -19,12 +19,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,7 +34,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -124,7 +126,8 @@ fun ChatBubbleItem(message: ChatMessage) {
         Text(
             text = message.participant.name,
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(bottom = 4.dp)
+            modifier = Modifier.padding(bottom = 4.dp),
+            fontFamily = FontFamily.Serif
         )
 
         Row {
@@ -143,7 +146,9 @@ fun ChatBubbleItem(message: ChatMessage) {
                 ) {
                     Text(
                         text = message.text,
-                        modifier = Modifier.padding(all = 16.dp)
+                        modifier = Modifier.padding(all = 16.dp),
+                        fontFamily = FontFamily.Serif
+
                     )
                 }
             }
@@ -161,29 +166,40 @@ fun MessageInput(
     ElevatedCard(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
-                .padding(all = 16.dp)
-                .fillMaxWidth()
+                .padding(all = 12.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedTextField(
+            TextField(
                 value = userMessage,
                 onValueChange = { userMessage = it },
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
                     .fillMaxWidth()
-                    .weight(0.85F),
-                label = { Text(stringResource(R.string.chat_label)) },
+                    .weight(0.85F)
+                    .padding(end = 10.dp),
+                label = {
+                    Text(
+                        stringResource(R.string.chat_label),
+                        fontFamily = FontFamily.Serif
+                    )
+                },
             )
-            IconButton(onClick = {
-                if (userMessage.isNotBlank()) {
-                    onSendMessage(userMessage)
-                    userMessage = ""
-                    resetScroll()
-                }
-            }) {
+            FloatingActionButton(
+                onClick = {
+                    if (userMessage.isNotBlank()) {
+                        onSendMessage(userMessage)
+                        userMessage = ""
+                        resetScroll()
+                    }
+                },
+                containerColor = Color.DarkGray
+            ) {
                 Icon(
                     imageVector = Icons.Default.Send,
-                    contentDescription = stringResource(id = R.string.action_send)
+                    contentDescription = stringResource(id = R.string.action_send),
+                    tint = Color.White.copy(0.9F)
                 )
             }
         }
