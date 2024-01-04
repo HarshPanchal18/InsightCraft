@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.harsh.askgemini.feature.chat.ChatRoute
 import com.harsh.askgemini.feature.text.SummarizeRoute
 import com.harsh.askgemini.ui.MenuScreen
 import com.harsh.askgemini.ui.theme.AskGeminiTheme
@@ -43,6 +44,10 @@ class MainActivity : ComponentActivity() {
 
                         composable("summarize") {
                             SummarizeRoute()
+                        }
+
+                        composable("chat") {
+                            ChatRoute()
                         }
                     }
                 }

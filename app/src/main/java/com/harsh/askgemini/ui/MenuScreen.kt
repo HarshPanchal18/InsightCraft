@@ -1,6 +1,7 @@
 package com.harsh.askgemini.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,7 +21,8 @@ import com.harsh.askgemini.data.MenuItem
 @Composable
 fun MenuScreen(onItemClicked: (String) -> Unit = {}) {
     val menuItems = listOf(
-        MenuItem("summarize", R.string.menu_summarize_title, R.string.menu_summarize_description)
+        MenuItem("summarize", R.string.menu_summarize_title, R.string.menu_summarize_description),
+        MenuItem("chat", R.string.menu_chat_title, R.string.menu_chat_description),
     )
 
     LazyColumn(
@@ -41,24 +43,29 @@ fun ItemCard(item: MenuItem, onItemClick: (String) -> Unit) {
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
 
-        Text(
-            text = stringResource(item.titleResId),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        )
-
-        Text(
-            text = stringResource(item.descriptionResId),
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-        )
-
-        TextButton(
-            onClick = { onItemClick(item.routeId) },
-            modifier = Modifier.align(Alignment.End)
+        Column(
+            modifier = Modifier
+                .padding(all = 16.dp)
+                .fillMaxWidth()
         ) {
-            Text(text = stringResource(id = R.string.action_try))
-        }
+            Text(
+                text = stringResource(item.titleResId),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
 
+            Text(
+                text = stringResource(item.descriptionResId),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+            )
+
+            TextButton(
+                onClick = { onItemClick(item.routeId) },
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text(text = stringResource(id = R.string.action_try))
+            }
+        }
     }
 }
