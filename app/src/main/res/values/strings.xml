@@ -11,4 +11,11 @@
     <string name="menu_summarize_title">Generate text from text-only input</string>
     <string name="menu_summarize_description">Sample app that summarizes text</string>
 
+    <string name="menu_chat_title">Build multi-turn conversations (chat)</string>
+    <string name="menu_chat_description">Sample app demonstrating a conversational UI</string>
+
+
+    <!-- Chat sample strings -->
+    <string name="chat_label">Ask</string>
+    <string name="action_send">Send</string>
 </resources>

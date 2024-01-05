@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -54,6 +56,7 @@ internal fun ChatRoute(
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.primary.copy(0.45F),
         bottomBar = {
             MessageInput(
                 onSendMessage = { inputText ->
@@ -111,7 +114,7 @@ fun ChatBubbleItem(message: ChatMessage) {
             )
         else
             RoundedCornerShape(
-                topStart = 4.dp, topEnd = 20.dp,
+                topStart = 20.dp, topEnd = 4.dp,
                 bottomEnd = 20.dp, bottomStart = 20.dp
             )
 
@@ -120,16 +123,9 @@ fun ChatBubbleItem(message: ChatMessage) {
     Column(
         horizontalAlignment = horizontalAlignment,
         modifier = Modifier
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .padding(horizontal = 6.dp, vertical = 4.dp)
             .fillMaxWidth()
     ) {
-        Text(
-            text = message.participant.name,
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(bottom = 4.dp),
-            fontFamily = FontFamily.Serif
-        )
-
         Row {
             if (message.isPending)
                 CircularProgressIndicator(
@@ -146,9 +142,9 @@ fun ChatBubbleItem(message: ChatMessage) {
                 ) {
                     Text(
                         text = message.text,
-                        modifier = Modifier.padding(all = 16.dp),
-                        fontFamily = FontFamily.Serif
-
+                        modifier = Modifier.padding(all = 14.dp),
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
@@ -163,7 +159,11 @@ fun MessageInput(
 ) {
     var userMessage by rememberSaveable { mutableStateOf("") }
 
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(6.dp)
+    ) {
         Row(
             modifier = Modifier
                 .padding(all = 12.dp)
@@ -175,16 +175,23 @@ fun MessageInput(
                 onValueChange = { userMessage = it },
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 modifier = Modifier
-                    .align(Alignment.CenterVertically)
                     .fillMaxWidth()
                     .weight(0.85F)
                     .padding(end = 10.dp),
-                label = {
+                placeholder = {
                     Text(
                         stringResource(R.string.chat_label),
-                        fontFamily = FontFamily.Serif
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.SemiBold
                     )
                 },
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.LightGray,
+                    unfocusedContainerColor = Color.LightGray,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent
+                ),
             )
             FloatingActionButton(
                 onClick = {
