@@ -34,21 +34,26 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.harsh.askgemini.R
 import com.harsh.askgemini.util.GenerativeViewModelFactory
 import kotlinx.coroutines.launch
 
 @Composable
 internal fun ChatRoute(
+    // Making function internal to restrict the accessibility within the same module
     chatViewModel: ChatViewModel = viewModel(factory = GenerativeViewModelFactory),
+    navController: NavHostController,
 ) {
 
     val chatUiState by chatViewModel.uiState.collectAsState()
@@ -152,12 +157,14 @@ fun ChatBubbleItem(message: ChatMessage) {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MessageInput(
     onSendMessage: (String) -> Unit,
     resetScroll: () -> Unit = {},
 ) {
     var userMessage by rememberSaveable { mutableStateOf("") }
+    val localKeyboardManager = LocalSoftwareKeyboardController.current
 
     ElevatedCard(
         modifier = Modifier
@@ -196,9 +203,9 @@ fun MessageInput(
             FloatingActionButton(
                 onClick = {
                     if (userMessage.isNotBlank()) {
-                        onSendMessage(userMessage)
-                        userMessage = ""
+                        onSendMessage(userMessage); userMessage = ""
                         resetScroll()
+                        localKeyboardManager?.hide()
                     }
                 },
                 containerColor = Color.DarkGray

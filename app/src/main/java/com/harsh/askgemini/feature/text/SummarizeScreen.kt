@@ -1,12 +1,14 @@
 package com.harsh.askgemini.feature.text
 
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
@@ -16,8 +18,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.BubbleChart
+import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,7 +44,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -52,13 +55,14 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.harsh.askgemini.util.GenerativeViewModelFactory
 import com.harsh.askgemini.R
+import com.harsh.askgemini.navigation.WindowNavigationItem
 import com.harsh.askgemini.util.Cupboard.randomSuggestion
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.CoroutineScope
@@ -68,10 +72,11 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun SummarizeRoute(
     summarizeViewModel: SummarizeViewModel = viewModel(factory = GenerativeViewModelFactory),
+    navController: NavHostController,
 ) {
     val summarizeUiState by summarizeViewModel.uiState.collectAsState()
 
-    SummarizedScreen(summarizeUiState) { inputText ->
+    SummarizedScreen(uiState = summarizeUiState, navController = navController) { inputText ->
         CoroutineScope(Dispatchers.IO).launch {
             summarizeViewModel.summarizeStreaming(inputText = inputText)
         }
@@ -84,6 +89,7 @@ var textCopyHolder: String = "" // Holding generated content to make copy to cli
 @Composable
 fun SummarizedScreen(
     uiState: SummarizeUiState = SummarizeUiState.Loading,
+    navController: NavHostController,
     onSummarizeClicked: (String) -> Unit = {},
 ) {
     var textToSummarize by rememberSaveable { mutableStateOf("") }
@@ -110,7 +116,6 @@ fun SummarizedScreen(
                     Text(
                         text = "What's cooking in your head?",
                         fontFamily = FontFamily.SansSerif,
-                        modifier = Modifier.padding(start = 4.dp)
                     )
                 },
                 modifier = Modifier
@@ -125,6 +130,22 @@ fun SummarizedScreen(
                     disabledIndicatorColor = Color.Transparent
                 ),
                 textStyle = TextStyle(fontFamily = FontFamily.SansSerif),
+                leadingIcon = {
+                    IconButton(
+                        onClick = {
+                            navController.navigate(WindowNavigationItem.Menu.route) {
+                                popUpTo(WindowNavigationItem.Menu.route) {
+                                    inclusive = true
+                                }
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowLeft,
+                            contentDescription = "Go back"
+                        )
+                    }
+                },
                 trailingIcon = {
                     if (textToSummarize.isNotEmpty()) {
                         IconButton(onClick = {
@@ -239,26 +260,33 @@ fun SuccessLayout(outputText: String) {
                 .padding(12.dp)
                 .fillMaxWidth()
         ) {
-            Column {
+            Column(
+                modifier = Modifier.padding(end = 4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Icon(
-                    imageVector = Icons.Outlined.Person,
-                    contentDescription = "Person icon",
+                    imageVector = Icons.Outlined.BubbleChart,
+                    contentDescription = "Prompt icon",
+                    tint = MaterialTheme.colorScheme.onSecondary,
+                    modifier = Modifier.requiredSize(36.dp)
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Icon(
+                    imageVector = Icons.Outlined.ContentCopy,
+                    contentDescription = "Copy answer",
                     tint = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier
-                        .requiredSize(36.dp)
-                        .drawBehind {
-                            drawCircle(color = Color.White)
+                        .requiredSize(28.dp)
+                        .clickable {
+                            localClipboardManager.setText(AnnotatedString(textCopyHolder))
+                            Toast
+                                .makeText(context, "Copied to clipboard!", Toast.LENGTH_SHORT)
+                                .show()
                         }
                 )
 
-                Text(
-                    text = "Tap to\ncopy",
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    textAlign = TextAlign.Start,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 5.dp, end = 5.dp),
-                )
             }
 
             Card(
@@ -274,13 +302,10 @@ fun SuccessLayout(outputText: String) {
                     style = TextStyle(fontFamily = FontFamily.SansSerif),
                     fontSize = 15.sp,
                     modifier = Modifier
-                        .padding(start = 6.dp, end = 6.dp, top = 8.dp, bottom = 16.dp)
+                        .padding(horizontal = 6.dp, vertical = 8.dp)
                         .fillMaxWidth(),
                     isTextSelectable = true,
-                    onClick = {
-                        localClipboardManager.setText(AnnotatedString(textCopyHolder))
-                        Toast.makeText(context, "Copied to clipboard!", Toast.LENGTH_SHORT).show()
-                    }
+                    lineHeight = 10.sp
                 )
             }
         }
@@ -291,8 +316,9 @@ fun SuccessLayout(outputText: String) {
 fun ErrorLayout(errorMessage: String) {
     Card(
         modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth(),
+            .padding(horizontal = 12.dp)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(30.dp)),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.errorContainer

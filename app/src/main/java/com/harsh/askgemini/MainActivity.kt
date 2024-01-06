@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.harsh.askgemini.feature.chat.ChatRoute
 import com.harsh.askgemini.feature.text.SummarizeRoute
+import com.harsh.askgemini.navigation.WindowNavigation
 import com.harsh.askgemini.ui.MenuScreen
 import com.harsh.askgemini.ui.theme.AskGeminiTheme
 
@@ -31,25 +32,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = uiColor
                 ) {
-
-                    val navController = rememberNavController()
-
-                    NavHost(navController = navController, startDestination = "menu") {
-
-                        composable("menu") {
-                            MenuScreen(onItemClicked = { route ->
-                                navController.navigate(route = route)
-                            })
-                        }
-
-                        composable("summarize") {
-                            SummarizeRoute()
-                        }
-
-                        composable("chat") {
-                            ChatRoute()
-                        }
-                    }
+                    WindowNavigation()
                 }
             }
         }
