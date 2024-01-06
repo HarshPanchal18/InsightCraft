@@ -32,4 +32,8 @@ object Cupboard {
     fun randomSuggestion(): String {
         return recommendList.random()
     }
+
+    fun String.cleanedString() = this.replace(Regex("```[\\w+#]*\n"), "")
+        .removeSuffix("\n```")
+
 }

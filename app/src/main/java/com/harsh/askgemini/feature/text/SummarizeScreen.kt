@@ -1,16 +1,12 @@
 package com.harsh.askgemini.feature.text
 
-import android.widget.Toast
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,16 +16,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.outlined.BubbleChart
-import androidx.compose.material.icons.outlined.ContentCopy
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -38,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -45,28 +38,23 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.harsh.askgemini.util.GenerativeViewModelFactory
 import com.harsh.askgemini.R
 import com.harsh.askgemini.navigation.WindowNavigationItem
+import com.harsh.askgemini.ui.DotLoadingAnimation
+import com.harsh.askgemini.ui.ErrorLayout
+import com.harsh.askgemini.ui.SuccessLayout
 import com.harsh.askgemini.util.Cupboard.randomSuggestion
-import dev.jeziellago.compose.markdowntext.MarkdownText
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.harsh.askgemini.util.GenerativeViewModelFactory
 import kotlinx.coroutines.launch
 
 @Composable
@@ -75,9 +63,10 @@ internal fun SummarizeRoute(
     navController: NavHostController,
 ) {
     val summarizeUiState by summarizeViewModel.uiState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
 
     SummarizedScreen(uiState = summarizeUiState, navController = navController) { inputText ->
-        CoroutineScope(Dispatchers.IO).launch {
+        coroutineScope.launch {
             summarizeViewModel.summarizeStreaming(inputText = inputText)
         }
     }
@@ -104,9 +93,6 @@ fun SummarizedScreen(
                 .padding(10.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(25.dp)),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFBAFD1A)
-            ),
             shape = MaterialTheme.shapes.large,
         ) {
             TextField(
@@ -183,7 +169,11 @@ fun SummarizedScreen(
                                 text = suggestion,
                                 fontFamily = FontFamily.SansSerif
                             )
-                        }
+                        },
+                        colors = SuggestionChipDefaults.suggestionChipColors(
+                            containerColor = Color.LightGray,
+                            labelColor = Color.Black.copy(0.8F)
+                        )
                     )
                 }
 
@@ -215,9 +205,7 @@ fun SummarizedScreen(
         }
 
         when (uiState) {
-            SummarizeUiState.Initial -> {
-                /* Nothing is shown */
-            }
+            SummarizeUiState.Initial -> {}
 
             SummarizeUiState.Loading -> {
                 Box(
@@ -226,7 +214,7 @@ fun SummarizedScreen(
                         .padding(all = 8.dp)
                         .align(Alignment.CenterHorizontally)
                 ) {
-                    CircularProgressIndicator()
+                    DotLoadingAnimation()
                 }
             }
 
@@ -238,103 +226,4 @@ fun SummarizedScreen(
             is SummarizeUiState.Error -> ErrorLayout(errorMessage = uiState.errorMessage)
         }
     }
-}
-
-@Composable
-fun SuccessLayout(outputText: String,textToCopy:String) {
-    val localClipboardManager = LocalClipboardManager.current
-    val context = LocalContext.current
-
-    Card(
-        modifier = Modifier
-            .padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(25.dp)),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.onSecondaryContainer
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(12.dp)
-                .fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier.padding(end = 4.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.BubbleChart,
-                    contentDescription = "Prompt icon",
-                    tint = MaterialTheme.colorScheme.onSecondary,
-                    modifier = Modifier.requiredSize(36.dp)
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Icon(
-                    imageVector = Icons.Outlined.ContentCopy,
-                    contentDescription = "Copy answer",
-                    tint = MaterialTheme.colorScheme.onSecondary,
-                    modifier = Modifier
-                        .requiredSize(28.dp)
-                        .clickable {
-                            localClipboardManager.setText(AnnotatedString(textToCopy))
-                            Toast
-                                .makeText(context, "Copied to clipboard!", Toast.LENGTH_SHORT)
-                                .show()
-                        }
-                )
-
-            }
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.large,
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.onSecondary
-                )
-            ) {
-                MarkdownText(
-                    markdown = outputText,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    style = TextStyle(fontFamily = FontFamily.SansSerif),
-                    fontSize = 15.sp,
-                    modifier = Modifier
-                        .padding(horizontal = 6.dp, vertical = 8.dp)
-                        .fillMaxWidth(),
-                    isTextSelectable = true,
-                    lineHeight = 10.sp
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ErrorLayout(errorMessage: String) {
-    Card(
-        modifier = Modifier
-            .padding(horizontal = 12.dp)
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(30.dp)),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer
-        )
-    ) {
-        Text(
-            text = errorMessage,
-            color = MaterialTheme.colorScheme.error,
-            modifier = Modifier.padding(16.dp)
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun Previews() {
-    //SummarizedScreen(SummarizeUiState.Success("Output Text"))
-    //SuccessLayout("User Output")
 }

@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
@@ -21,7 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.rounded.ChevronLeft
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -53,9 +53,10 @@ import coil.request.ImageRequest
 import coil.request.SuccessResult
 import coil.size.Precision
 import com.harsh.askgemini.R
-import com.harsh.askgemini.feature.text.ErrorLayout
-import com.harsh.askgemini.feature.text.SuccessLayout
 import com.harsh.askgemini.navigation.WindowNavigationItem
+import com.harsh.askgemini.ui.DotLoadingAnimation
+import com.harsh.askgemini.ui.ErrorLayout
+import com.harsh.askgemini.ui.SuccessLayout
 import com.harsh.askgemini.util.GenerativeViewModelFactory
 import com.harsh.askgemini.util.UriSaver
 import kotlinx.coroutines.launch
@@ -114,13 +115,10 @@ fun PhotoReasoningScreen(
         imageUri?.let { imageUris.add(it) }
     }
 
-    Column(
-        modifier = Modifier
-            .padding(8.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         Card(
             modifier = Modifier
+                .padding(10.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(25.dp))
         ) {
@@ -134,7 +132,6 @@ fun PhotoReasoningScreen(
                     TextField(
                         value = userQuestion,
                         onValueChange = { userQuestion = it },
-                        label = { Text(stringResource(R.string.reason_label)) },
                         placeholder = { Text(stringResource(R.string.reason_hint)) },
                         modifier = Modifier
                             .padding(4.dp)
@@ -239,28 +236,29 @@ fun PhotoReasoningScreen(
                     )
                 }
             }
+        }
 
-            when (uiState) {
-                PhotoReasoningUiState.Initial -> {}
+        when (uiState) {
+            PhotoReasoningUiState.Initial -> {}
 
-                PhotoReasoningUiState.Loading -> {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .padding(all = 8.dp)
-                            .align(Alignment.CenterHorizontally)
-                    ) {
-                        CircularProgressIndicator()
-                    }
+            PhotoReasoningUiState.Loading -> {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(all = 8.dp)
+                        .align(Alignment.CenterHorizontally)
+                ) {
+                    DotLoadingAnimation()
                 }
+            }
 
-                is PhotoReasoningUiState.Success -> {
-                    SuccessLayout(outputText = uiState.output, textToCopy = uiState.output)
-                }
+            is PhotoReasoningUiState.Success -> {
+                SuccessLayout(outputText = uiState.output, textToCopy = uiState.output)
+            }
 
-                is PhotoReasoningUiState.Error -> {
-                    ErrorLayout(uiState.errorMessage)
-                }
+            is PhotoReasoningUiState.Error -> {
+                ErrorLayout(uiState.errorMessage)
             }
         }
     }

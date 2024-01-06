@@ -16,7 +16,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AskGeminiTheme {
-                val uiColor = MaterialTheme.colorScheme.primary.copy(0.45F)
+                val uiColor = MaterialTheme.colorScheme.primary.copy(0.6F)
                 val systemUiController = rememberSystemUiController()
 
                 systemUiController.setSystemBarsColor(color = uiColor)

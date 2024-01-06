@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -23,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.outlined.BubbleChart
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -58,12 +58,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.harsh.askgemini.R
 import com.harsh.askgemini.navigation.WindowNavigationItem
+import com.harsh.askgemini.util.Cupboard.cleanedString
 import com.harsh.askgemini.util.GenerativeViewModelFactory
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.launch
@@ -112,10 +114,10 @@ fun ChatList(
 ) {
     LazyColumn(
         state = listState,
-        reverseLayout = true // last element(message) will be the current index
+        reverseLayout = true // reverse the direction of scrolling and layout.
     ) {
         items(chatMessage.reversed()) { message ->
-            ChatBubbleItem(message)
+            ChatBubbleItem(message) // last message will be the current index
         }
     }
 }
@@ -204,11 +206,7 @@ fun Bubble(
                 ElevatedAssistChip(
                     modifier = Modifier.padding(start = 10.dp),
                     onClick = {
-                        val messageToCopy = message
-                            .replace(Regex("```[\\w+#]*\n"),"")
-                            .removeSuffix("\n```")
-
-                        clipboardManager.setText(AnnotatedString(messageToCopy))
+                        clipboardManager.setText(AnnotatedString(message.cleanedString()))
                         Toast
                             .makeText(context, "Copied to clipboard!", Toast.LENGTH_SHORT)
                             .show()
@@ -296,7 +294,7 @@ fun TopAppBarOfChat(navController: NavHostController) {
             .background(color = Color.White.copy(0.8F))
             .padding(all = 4.dp) // Adjust padding as needed
             .height(IntrinsicSize.Min),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(onClick = {
             navController.navigate(WindowNavigationItem.Menu.route) {
@@ -309,12 +307,30 @@ fun TopAppBarOfChat(navController: NavHostController) {
                 tint = Color.DarkGray
             )
         }
-        Spacer(modifier = Modifier.width(16.dp))
+
+        Spacer(modifier = Modifier.weight(1F))
+
         Text(
             text = "Chat with AI",
             fontFamily = FontFamily.Serif,
             fontWeight = FontWeight.SemiBold,
-            color = Color.DarkGray
+            color = Color.DarkGray,
+            textAlign = TextAlign.Center
         )
+
+        Icon(
+            imageVector = Icons.Outlined.BubbleChart,
+            contentDescription = "Prompt icon",
+            tint = Color.DarkGray,
+            modifier = Modifier.requiredSize(24.dp)
+        )
+
+        Spacer(modifier = Modifier.weight(1F))
+
+        IconButton(onClick = {
+            navController.navigate(WindowNavigationItem.Menu.route) {
+                popUpTo(WindowNavigationItem.Menu.route) { inclusive = true }
+            }
+        }, enabled = false) {}
     }
 }
