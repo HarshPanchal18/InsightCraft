@@ -16,6 +16,6 @@
 
 
     <!-- Chat sample strings -->
-    <string name="chat_label">Ask</string>
+    <string name="chat_label">Ask anything...</string>
     <string name="action_send">Send</string>
 </resources>
