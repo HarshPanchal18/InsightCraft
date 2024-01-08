@@ -1,7 +1,7 @@
 package com.harsh.askgemini.util
 
 object Cupboard {
-    const val apiKey = "YOUR_API_KEY"
+    const val apiKey = "YOUR_API_KEY" // https://makersuite.google.com/app/apikey
 
     private val recommendList = listOf(
         "Can aging be reversed?",

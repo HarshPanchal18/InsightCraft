@@ -1,8 +1,7 @@
 package com.harsh.askgemini.feature.chat
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -12,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,9 +23,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedAssistChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,7 +40,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -46,13 +47,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -79,7 +80,7 @@ internal fun ChatRoute(
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.primary.copy(0.45F),
+        containerColor = MaterialTheme.colorScheme.primary.copy(0.40F),
         bottomBar = {
             MessageInput(
                 onSendMessage = { inputText ->
@@ -130,17 +131,21 @@ fun ChatBubbleItem(message: ChatMessage) {
         Participant.ERROR -> MaterialTheme.colorScheme.errorContainer
     }
 
+    val modelMessageShape = RoundedCornerShape(
+        topStart = 4.dp, topEnd = 20.dp,
+        bottomEnd = 20.dp, bottomStart = 20.dp
+    )
+
+    val userMessageShape = RoundedCornerShape(
+        topStart = 20.dp, topEnd = 4.dp,
+        bottomEnd = 20.dp, bottomStart = 20.dp
+    )
+
     val bubbleShape =
         if (isModelMessage)
-            RoundedCornerShape(
-                topStart = 4.dp, topEnd = 20.dp,
-                bottomEnd = 20.dp, bottomStart = 20.dp
-            )
+            modelMessageShape
         else
-            RoundedCornerShape(
-                topStart = 20.dp, topEnd = 4.dp,
-                bottomEnd = 20.dp, bottomStart = 20.dp
-            )
+            userMessageShape
 
     val horizontalAlignment = if (isModelMessage) Alignment.Start else Alignment.End
 
@@ -161,7 +166,8 @@ fun ChatBubbleItem(message: ChatMessage) {
             Bubble(
                 message = message.text,
                 bubbleShape = bubbleShape,
-                backgroundColor = backgroundColor
+                backgroundColor = backgroundColor,
+                isModelMessage = isModelMessage
             )
         }
     }
@@ -170,8 +176,11 @@ fun ChatBubbleItem(message: ChatMessage) {
 @Composable
 fun Bubble(
     message: String, bubbleShape: Shape,
-    backgroundColor: Color,
+    backgroundColor: Color, isModelMessage: Boolean,
 ) {
+
+    val clipboardManager = LocalClipboardManager.current
+    val context = LocalContext.current
 
     BoxWithConstraints {
         Card(
@@ -190,6 +199,30 @@ fun Bubble(
                 ),
                 lineHeight = 10.sp
             )
+
+            if (isModelMessage)
+                ElevatedAssistChip(
+                    modifier = Modifier.padding(start = 10.dp),
+                    onClick = {
+                        val messageToCopy = message
+                            .replace(Regex("```[\\w+#]*\n"),"")
+                            .removeSuffix("\n```")
+
+                        clipboardManager.setText(AnnotatedString(messageToCopy))
+                        Toast
+                            .makeText(context, "Copied to clipboard!", Toast.LENGTH_SHORT)
+                            .show()
+                    },
+                    label = { Text(" Copy") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Outlined.ContentCopy,
+                            contentDescription = "Copy answer",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.requiredSize(20.dp)
+                        )
+                    }
+                )
         }
     }
 }
@@ -206,7 +239,7 @@ fun MessageInput(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp, horizontal = 6.dp),
+            .padding(vertical = 12.dp, horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextField(
@@ -226,10 +259,14 @@ fun MessageInput(
                 )
             },
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.inversePrimary,
-                unfocusedContainerColor = MaterialTheme.colorScheme.inversePrimary,
+                focusedContainerColor = Color.White.copy(0.8F),
+                unfocusedContainerColor = Color.White.copy(0.8F),
+
                 focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
+                unfocusedIndicatorColor = Color.Transparent,
+
+                focusedTextColor = Color.DarkGray,
+                unfocusedTextColor = Color.DarkGray,
             ),
         )
         FloatingActionButton(
@@ -256,7 +293,7 @@ fun TopAppBarOfChat(navController: NavHostController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.inversePrimary)
+            .background(color = Color.White.copy(0.8F))
             .padding(all = 4.dp) // Adjust padding as needed
             .height(IntrinsicSize.Min),
         verticalAlignment = Alignment.CenterVertically
@@ -268,15 +305,16 @@ fun TopAppBarOfChat(navController: NavHostController) {
         }) {
             Icon(
                 imageVector = Icons.Default.KeyboardArrowLeft,
-                contentDescription = null
+                contentDescription = null,
+                tint = Color.DarkGray
             )
         }
         Spacer(modifier = Modifier.width(16.dp))
         Text(
             text = "Chat with AI",
             fontFamily = FontFamily.Serif,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            color = Color.DarkGray
         )
     }
-
 }
