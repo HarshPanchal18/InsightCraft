@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.generationConfig
 import com.harsh.askgemini.feature.chat.ChatViewModel
+import com.harsh.askgemini.feature.multimodal.PhotoReasoningModel
 import com.harsh.askgemini.feature.text.SummarizeViewModel
 
 @Suppress("UNCHECKED_CAST")
@@ -34,6 +35,15 @@ val GenerativeViewModelFactory = object : ViewModelProvider.Factory {
                         generationConfig = config
                     )
                     ChatViewModel(generativeModel)
+                }
+
+                isAssignableFrom(PhotoReasoningModel::class.java) -> {
+                    val generativeModel = GenerativeModel(
+                        modelName = "gemini-pro-vision",
+                        apiKey = Cupboard.apiKey,
+                        generationConfig = config
+                    )
+                    PhotoReasoningModel(generativeModel)
                 }
 
                 else ->
