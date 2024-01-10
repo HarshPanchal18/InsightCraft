@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.harsh.askgemini.feature.chat.ChatRoute
+import com.harsh.askgemini.feature.multimodal.PhotoReasoningRoute
 import com.harsh.askgemini.feature.text.SummarizeRoute
 import com.harsh.askgemini.ui.MenuScreen
 
@@ -28,6 +29,10 @@ fun WindowNavigation() {
         composable(WindowNavigationItem.Chat.route) {
             ChatRoute(navController = navController)
         }
+
+        composable(WindowNavigationItem.PhotoReasoning.route) {
+            PhotoReasoningRoute(navController = navController)
+        }
     }
 }
 
@@ -35,4 +40,5 @@ sealed class WindowNavigationItem(val route: String) {
     data object Menu: WindowNavigationItem("menu")
     data object Summarize: WindowNavigationItem("summarize")
     data object Chat: WindowNavigationItem("chat")
+    data object PhotoReasoning: WindowNavigationItem("reasoning")
 }

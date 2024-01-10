@@ -14,16 +14,18 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.ChevronLeft
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,6 +36,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -47,6 +50,7 @@ import coil.size.Precision
 import com.harsh.askgemini.R
 import com.harsh.askgemini.feature.text.ErrorLayout
 import com.harsh.askgemini.feature.text.SuccessLayout
+import com.harsh.askgemini.navigation.WindowNavigationItem
 import com.harsh.askgemini.util.GenerativeViewModelFactory
 import com.harsh.askgemini.util.UriSaver
 import kotlinx.coroutines.launch
@@ -62,7 +66,10 @@ internal fun PhotoReasoningRoute(
     val imageRequestBuilder = ImageRequest.Builder(context)
     val imageLoader = ImageLoader.Builder(context).build()
 
-    PhotoReasoningScreen(uiState = photoReasoningUiState) { inputText, selectedItems ->
+    PhotoReasoningScreen(
+        uiState = photoReasoningUiState,
+        navController = navController
+    ) { inputText, selectedItems ->
         coroutineScope.launch {
             val bitmaps = selectedItems.mapNotNull { uri ->
                 val imageRequest = imageRequestBuilder
@@ -89,6 +96,7 @@ internal fun PhotoReasoningRoute(
 @Composable
 fun PhotoReasoningScreen(
     uiState: PhotoReasoningUiState = PhotoReasoningUiState.Loading,
+    navController: NavHostController,
     onReasonClicked: (String, List<Uri>) -> Unit = { question, uris -> },
 ) {
     var userQuestion by rememberSaveable { mutableStateOf("") }
@@ -105,22 +113,38 @@ fun PhotoReasoningScreen(
             .verticalScroll(rememberScrollState())
     ) {
         Card(modifier = Modifier.fillMaxWidth()) {
-            Row(modifier = Modifier.padding(top = 16.dp)) {
+            Row(modifier = Modifier.padding(top = 4.dp)) {
 
-                IconButton(
-                    onClick = {
-                        pickMedia.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                Column {
+                    IconButton(
+                        onClick = {
+                            navController.navigate(WindowNavigationItem.Menu.route) {
+                                popUpTo(WindowNavigationItem.Menu.route) {
+                                    inclusive = true
+                                }
+                            }
+                        },
+                        modifier = Modifier.padding(all = 4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.ChevronLeft,
+                            contentDescription = "Menu Screen",
                         )
-                    },
-                    modifier = Modifier
-                        .padding(all = 4.dp)
-                        .align(Alignment.CenterVertically)
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Add,
-                        contentDescription = stringResource(R.string.add_image),
-                    )
+                    }
+
+                    IconButton(
+                        onClick = {
+                            pickMedia.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        },
+                        modifier = Modifier.padding(all = 4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Add,
+                            contentDescription = stringResource(R.string.add_image),
+                        )
+                    }
                 }
 
                 OutlinedTextField(
@@ -128,31 +152,31 @@ fun PhotoReasoningScreen(
                     onValueChange = { userQuestion = it },
                     label = { Text(stringResource(R.string.reason_label)) },
                     placeholder = { Text(stringResource(R.string.reason_hint)) },
-                    modifier = Modifier.fillMaxWidth(fraction = 0.8F)
+                    modifier = Modifier.weight(1F)
                 )
 
-                TextButton(
+                Button(
                     onClick = {
                         if (userQuestion.isNotBlank())
                             onReasonClicked(userQuestion, imageUris.toList())
                     },
                     modifier = Modifier
                         .padding(all = 4.dp)
-                        .align(Alignment.CenterVertically)
+                        .align(Alignment.Top)
                 ) {
                     Text(text = stringResource(id = R.string.action_go))
                 }
+            }
 
-                LazyRow(modifier = Modifier.padding(8.dp)) {
-                    items(imageUris) { imageUri ->
-                        AsyncImage(
-                            model = imageUri,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(4.dp)
-                                .requiredSize(72.dp)
-                        )
-                    }
+            LazyRow(modifier = Modifier.padding(8.dp)) {
+                items(imageUris) { imageUri ->
+                    AsyncImage(
+                        model = imageUri,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .requiredSize(72.dp)
+                    )
                 }
             }
 
@@ -171,7 +195,7 @@ fun PhotoReasoningScreen(
                 }
 
                 is PhotoReasoningUiState.Success -> {
-                    SuccessLayout(uiState.output)
+                    SuccessLayout(outputText = uiState.output, textToCopy = uiState.output)
                 }
 
                 is PhotoReasoningUiState.Error -> {

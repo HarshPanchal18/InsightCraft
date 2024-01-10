@@ -231,8 +231,8 @@ fun SummarizedScreen(
             }
 
             is SummarizeUiState.Success -> {
-                SuccessLayout(outputText = uiState.outputText)
                 textCopyHolder = uiState.outputText
+                SuccessLayout(outputText = uiState.outputText, textToCopy = textCopyHolder)
             }
 
             is SummarizeUiState.Error -> ErrorLayout(errorMessage = uiState.errorMessage)
@@ -241,7 +241,7 @@ fun SummarizedScreen(
 }
 
 @Composable
-fun SuccessLayout(outputText: String) {
+fun SuccessLayout(outputText: String,textToCopy:String) {
     val localClipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
 
@@ -280,7 +280,7 @@ fun SuccessLayout(outputText: String) {
                     modifier = Modifier
                         .requiredSize(28.dp)
                         .clickable {
-                            localClipboardManager.setText(AnnotatedString(textCopyHolder))
+                            localClipboardManager.setText(AnnotatedString(textToCopy))
                             Toast
                                 .makeText(context, "Copied to clipboard!", Toast.LENGTH_SHORT)
                                 .show()
