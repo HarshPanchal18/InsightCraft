@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class PhotoReasoningModel(private val generativeModel: GenerativeModel) : ViewModel() {
+class PhotoReasoningViewModel(private val generativeModel: GenerativeModel) : ViewModel() {
 
     private val _uiState: MutableStateFlow<PhotoReasoningUiState> =
         MutableStateFlow(PhotoReasoningUiState.Initial)

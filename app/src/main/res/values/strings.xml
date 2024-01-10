@@ -8,12 +8,18 @@
     <string name="summarize_label">Text</string>
     <string name="summarize_hint">Enter text to summarize</string>
 
+    <string name="reason_label">Question</string>
+    <string name="reason_hint">Upload an image and then ask a question</string>
+    <string name="add_image">Add Image</string>
+
     <string name="menu_summarize_title">Generate text from text-only input</string>
     <string name="menu_summarize_description">Sample app that summarizes text</string>
 
     <string name="menu_chat_title">Build multi-turn conversations (chat)</string>
     <string name="menu_chat_description">Sample app demonstrating a conversational UI</string>
 
+    <string name="menu_reason_title">Generate text from text-and-image input (multimodal)</string>
+    <string name="menu_reason_description">Sample app for uploading images and asking about them</string>
 
     <!-- Chat sample strings -->
     <string name="chat_label">Ask anything...</string>
