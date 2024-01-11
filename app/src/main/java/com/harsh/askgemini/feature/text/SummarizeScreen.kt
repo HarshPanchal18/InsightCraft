@@ -249,7 +249,7 @@ fun SuccessLayout(outputText: String,textToCopy:String) {
         modifier = Modifier
             .padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
             .fillMaxWidth()
-            .clip(RoundedCornerShape(30.dp)),
+            .clip(RoundedCornerShape(25.dp)),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.onSecondaryContainer

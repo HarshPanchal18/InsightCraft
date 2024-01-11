@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,18 +15,19 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.rounded.ChevronLeft
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -35,9 +37,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -93,6 +98,7 @@ internal fun PhotoReasoningRoute(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun PhotoReasoningScreen(
     uiState: PhotoReasoningUiState = PhotoReasoningUiState.Loading,
@@ -100,6 +106,7 @@ fun PhotoReasoningScreen(
     onReasonClicked: (String, List<Uri>) -> Unit = { question, uris -> },
 ) {
     var userQuestion by rememberSaveable { mutableStateOf("") }
+    val localKeyboardManager = LocalSoftwareKeyboardController.current
     val imageUris = rememberSaveable(saver = UriSaver()) { mutableStateListOf() }
     val pickMedia = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -109,62 +116,115 @@ fun PhotoReasoningScreen(
 
     Column(
         modifier = Modifier
-            .padding(16.dp)
+            .padding(8.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Row(modifier = Modifier.padding(top = 4.dp)) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(25.dp))
+        ) {
+            Column {
+                Row(
+                    modifier = Modifier
+                        .padding(top = 10.dp)
+                        .padding(horizontal = 4.dp)
+                ) {
 
-                Column {
-                    IconButton(
-                        onClick = {
-                            navController.navigate(WindowNavigationItem.Menu.route) {
-                                popUpTo(WindowNavigationItem.Menu.route) {
-                                    inclusive = true
-                                }
+                    TextField(
+                        value = userQuestion,
+                        onValueChange = { userQuestion = it },
+                        label = { Text(stringResource(R.string.reason_label)) },
+                        placeholder = { Text(stringResource(R.string.reason_hint)) },
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .padding(horizontal = 4.dp)
+                            .weight(1F)
+                            .clip(RoundedCornerShape(20.dp)),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                        ),
+                        leadingIcon = {
+                            IconButton(
+                                onClick = {
+                                    navController.navigate(WindowNavigationItem.Menu.route) {
+                                        popUpTo(WindowNavigationItem.Menu.route) {
+                                            inclusive = true
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.padding(all = 4.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.ChevronLeft,
+                                    contentDescription = "Menu Screen",
+                                )
                             }
                         },
-                        modifier = Modifier.padding(all = 4.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.ChevronLeft,
-                            contentDescription = "Menu Screen",
-                        )
-                    }
+                        trailingIcon = {
+                            if (userQuestion.isNotEmpty()) {
+                                IconButton(onClick = {
+                                    userQuestion = ""
+                                    localKeyboardManager?.show()
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = null,
+                                        tint = Color.Black
+                                    )
+                                }
+                            }
+                        }
+                    )
+                }
 
-                    IconButton(
+                Row(modifier = Modifier.padding(horizontal = 8.dp)) {
+                    TextButton(
                         onClick = {
                             pickMedia.launch(
                                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                             )
                         },
-                        modifier = Modifier.padding(all = 4.dp)
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .weight(2F)
+                            .background(color = Color.White)
                     ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Add,
-                            contentDescription = stringResource(R.string.add_image),
-                        )
+                        Text(text = "Add Image")
                     }
-                }
 
-                OutlinedTextField(
-                    value = userQuestion,
-                    onValueChange = { userQuestion = it },
-                    label = { Text(stringResource(R.string.reason_label)) },
-                    placeholder = { Text(stringResource(R.string.reason_hint)) },
-                    modifier = Modifier.weight(1F)
-                )
+                    if (imageUris.isNotEmpty()) {
+                        TextButton(
+                            onClick = {
+                                imageUris.clear()
+                            },
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .clip(RoundedCornerShape(20.dp))
+                                .weight(2F)
+                                .background(color = Color.White)
+                        ) {
+                            Text(text = "Clear selection")
+                        }
+                    }
 
-                Button(
-                    onClick = {
-                        if (userQuestion.isNotBlank())
-                            onReasonClicked(userQuestion, imageUris.toList())
-                    },
-                    modifier = Modifier
-                        .padding(all = 4.dp)
-                        .align(Alignment.Top)
-                ) {
-                    Text(text = stringResource(id = R.string.action_go))
+                    TextButton(
+                        onClick = {
+                            if (userQuestion.isNotBlank())
+                                onReasonClicked(userQuestion, imageUris.toList())
+                        },
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .weight(1F)
+                            .background(color = Color.White)
+                    ) {
+                        Text(text = stringResource(id = R.string.action_go))
+                    }
                 }
             }
 
@@ -175,7 +235,7 @@ fun PhotoReasoningScreen(
                         contentDescription = null,
                         modifier = Modifier
                             .padding(4.dp)
-                            .requiredSize(72.dp)
+                            .requiredSize(125.dp)
                     )
                 }
             }
