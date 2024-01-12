@@ -104,7 +104,7 @@ internal fun PhotoReasoningRoute(
 fun PhotoReasoningScreen(
     uiState: PhotoReasoningUiState = PhotoReasoningUiState.Loading,
     navController: NavHostController,
-    onReasonClicked: (String, List<Uri>) -> Unit = { question, uris -> },
+    onReasonClicked: (String, List<Uri>) -> Unit = { _, _ -> },
 ) {
     var userQuestion by rememberSaveable { mutableStateOf("") }
     val localKeyboardManager = LocalSoftwareKeyboardController.current
