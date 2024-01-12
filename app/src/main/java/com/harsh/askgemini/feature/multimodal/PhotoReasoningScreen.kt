@@ -1,7 +1,10 @@
 package com.harsh.askgemini.feature.multimodal
 
+import android.Manifest
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
+import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -52,6 +55,9 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.request.SuccessResult
 import coil.size.Precision
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.harsh.askgemini.R
 import com.harsh.askgemini.navigation.WindowNavigationItem
 import com.harsh.askgemini.ui.DotLoadingAnimation
@@ -99,13 +105,14 @@ internal fun PhotoReasoningRoute(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalPermissionsApi::class)
 @Composable
 fun PhotoReasoningScreen(
     uiState: PhotoReasoningUiState = PhotoReasoningUiState.Loading,
     navController: NavHostController,
     onReasonClicked: (String, List<Uri>) -> Unit = { _, _ -> },
 ) {
+    val context = LocalContext.current
     var userQuestion by rememberSaveable { mutableStateOf("") }
     val localKeyboardManager = LocalSoftwareKeyboardController.current
     val imageUris = rememberSaveable(saver = UriSaver()) { mutableStateListOf() }
@@ -114,6 +121,12 @@ fun PhotoReasoningScreen(
     ) { imageUri ->
         imageUri?.let { imageUris.add(it) }
     }
+    val storagePermission =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            rememberPermissionState(permission = Manifest.permission.READ_MEDIA_IMAGES)
+        } else {
+            rememberPermissionState(permission = Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
 
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         Card(
@@ -181,9 +194,14 @@ fun PhotoReasoningScreen(
                 Row(modifier = Modifier.padding(horizontal = 8.dp)) {
                     TextButton(
                         onClick = {
-                            pickMedia.launch(
-                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                            )
+                            if (storagePermission.status.isGranted) {
+                                pickMedia.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                )
+                            } else {
+                                Toast.makeText(context,"Allow permission",Toast.LENGTH_SHORT).show()
+                                storagePermission.launchPermissionRequest()
+                            }
                         },
                         modifier = Modifier
                             .padding(4.dp)
@@ -213,6 +231,7 @@ fun PhotoReasoningScreen(
                         onClick = {
                             if (userQuestion.isNotBlank())
                                 onReasonClicked(userQuestion, imageUris.toList())
+                            localKeyboardManager?.hide()
                         },
                         modifier = Modifier
                             .padding(4.dp)
