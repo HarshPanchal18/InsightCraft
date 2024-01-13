@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.harsh.askgemini.R
-import com.harsh.askgemini.data.MenuItem
+import com.harsh.askgemini.data.Screen
 import com.harsh.askgemini.util.Cupboard.cleanedString
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.delay
@@ -188,7 +188,7 @@ fun DotLoadingAnimation(
 }
 
 @Composable
-fun ItemCard(item: MenuItem, onItemClick: (String) -> Unit) {
+fun ScreenCard(screen: Screen, onItemClick: (String) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -201,19 +201,21 @@ fun ItemCard(item: MenuItem, onItemClick: (String) -> Unit) {
                 .fillMaxWidth()
         ) {
             Text(
-                text = stringResource(item.titleResId),
+                text = stringResource(screen.titleResId),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
             Text(
-                text = stringResource(item.descriptionResId),
+                text = stringResource(screen.descriptionResId),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
             )
 
+            Spacer(modifier = Modifier.weight(1F))
+
             TextButton(
-                onClick = { onItemClick(item.routeId) },
+                onClick = { onItemClick(screen.routeId) },
                 modifier = Modifier.align(Alignment.End)
             ) {
                 Text(text = stringResource(id = R.string.action_try))
