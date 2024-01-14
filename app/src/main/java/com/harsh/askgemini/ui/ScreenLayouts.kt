@@ -20,14 +20,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowRight
 import androidx.compose.material.icons.outlined.BubbleChart
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -40,7 +41,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -188,11 +191,15 @@ fun DotLoadingAnimation(
 }
 
 @Composable
-fun ScreenCard(screen: Screen, onItemClick: (String) -> Unit) {
+fun ScreenEntryCard(screen: Screen, background: Color, onItemClick: (String) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(25.dp)),
+        colors = CardDefaults.cardColors(
+            containerColor = background.copy(0.55F)
+        )
     ) {
 
         Column(
@@ -202,23 +209,30 @@ fun ScreenCard(screen: Screen, onItemClick: (String) -> Unit) {
         ) {
             Text(
                 text = stringResource(screen.titleResId),
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                fontFamily = FontFamily(Font(R.font.lemony, FontWeight.ExtraBold)),
+                color = Color.Black.copy(0.85F),
             )
 
             Text(
                 text = stringResource(screen.descriptionResId),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                fontFamily = FontFamily(Font(R.font.lemony, FontWeight.ExtraBold)),
             )
 
             Spacer(modifier = Modifier.weight(1F))
 
-            TextButton(
+            FloatingActionButton(
                 onClick = { onItemClick(screen.routeId) },
-                modifier = Modifier.align(Alignment.End)
+                modifier = Modifier.align(Alignment.End),
             ) {
-                Text(text = stringResource(id = R.string.action_try))
+                Icon(
+                    imageVector = Icons.Default.KeyboardDoubleArrowRight,
+                    contentDescription = "Go",
+                    tint = Color.Black.copy(0.75F)
+                )
             }
         }
     }
