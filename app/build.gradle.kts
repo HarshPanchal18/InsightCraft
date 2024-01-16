@@ -65,6 +65,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
     implementation("com.google.accompanist:accompanist-permissions:0.25.1")
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
