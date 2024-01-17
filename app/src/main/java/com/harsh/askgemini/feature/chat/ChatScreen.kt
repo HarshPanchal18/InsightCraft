@@ -1,5 +1,6 @@
 package com.harsh.askgemini.feature.chat
 
+import android.Manifest
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -21,12 +22,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.BubbleChart
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedAssistChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -63,9 +64,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.harsh.askgemini.R
 import com.harsh.askgemini.navigation.WindowNavigationItem
+import com.harsh.askgemini.ui.DotLoadingAnimation
 import com.harsh.askgemini.util.Cupboard.cleanedString
+import com.harsh.askgemini.util.Cupboard.startSpeechToText
 import com.harsh.askgemini.util.GenerativeViewModelFactory
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.launch
@@ -159,10 +165,9 @@ fun ChatBubbleItem(message: ChatMessage) {
     ) {
         Row {
             if (message.isPending)
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .padding(all = 8.dp)
+                DotLoadingAnimation(
+                    modifier = Modifier.align(Alignment.CenterVertically).padding(end = 8.dp),
+                    circleSize = 24.dp
                 )
 
             Bubble(
@@ -211,7 +216,12 @@ fun Bubble(
                             .makeText(context, "Copied to clipboard!", Toast.LENGTH_SHORT)
                             .show()
                     },
-                    label = { Text(" Copy") },
+                    label = {
+                        Text(
+                            text = " Copy",
+                            fontFamily = FontFamily.Serif
+                        )
+                    },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Outlined.ContentCopy,
@@ -225,7 +235,7 @@ fun Bubble(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalPermissionsApi::class)
 @Composable
 fun MessageInput(
     onSendMessage: (String) -> Unit,
@@ -233,6 +243,9 @@ fun MessageInput(
 ) {
     var userMessage by rememberSaveable { mutableStateOf("") }
     val localKeyboardManager = LocalSoftwareKeyboardController.current
+    val context = LocalContext.current
+    val audioPermission =
+        rememberPermissionState(permission = Manifest.permission.RECORD_AUDIO)
 
     Row(
         modifier = Modifier
@@ -252,7 +265,7 @@ fun MessageInput(
             placeholder = {
                 Text(
                     stringResource(R.string.chat_label),
-                    fontFamily = FontFamily.Serif,
+                    fontFamily = FontFamily.Serif,//FontFamily(Font(R.font.lemony, FontWeight.Bold)),
                     fontWeight = FontWeight.SemiBold
                 )
             },
@@ -268,20 +281,50 @@ fun MessageInput(
             ),
         )
         FloatingActionButton(
+            containerColor = Color.DarkGray,
             onClick = {
-                if (userMessage.isNotBlank()) {
-                    onSendMessage(userMessage); userMessage = ""
-                    resetScroll()
-                    localKeyboardManager?.hide()
+                when {
+                    userMessage.isNotBlank() -> {
+                        onSendMessage(userMessage); userMessage = ""
+                        resetScroll()
+                        localKeyboardManager?.hide()
+                    }
+
+                    else -> {
+                        if (audioPermission.status.isGranted) {
+                            startSpeechToText(context) { result ->
+                                userMessage = result
+                            }
+                        } else {
+                            audioPermission.launchPermissionRequest()
+                            if (audioPermission.status.isGranted)
+                                startSpeechToText(context) { result ->
+                                    userMessage = result
+                                }
+                            else
+                                Toast.makeText(
+                                    context,
+                                    "Allow permission to record speech",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                        }
+                    }
                 }
-            },
-            containerColor = Color.DarkGray
+            }
         ) {
-            Icon(
-                imageVector = Icons.Default.Send,
-                contentDescription = stringResource(id = R.string.action_send),
-                tint = Color.White.copy(0.9F)
-            )
+            if (userMessage.isNotEmpty()) {
+                Icon(
+                    imageVector = Icons.Default.Send,
+                    contentDescription = stringResource(id = R.string.action_send),
+                    tint = Color.White.copy(0.9F)
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Mic,
+                    contentDescription = stringResource(id = R.string.action_send),
+                    tint = Color.White.copy(0.9F)
+                )
+            }
         }
     }
 }

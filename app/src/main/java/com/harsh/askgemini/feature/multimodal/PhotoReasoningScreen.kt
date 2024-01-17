@@ -27,6 +27,7 @@ import androidx.compose.material.icons.rounded.ChevronLeft
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -47,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -145,7 +147,13 @@ fun PhotoReasoningScreen(
                     TextField(
                         value = userQuestion,
                         onValueChange = { userQuestion = it },
-                        placeholder = { Text(stringResource(R.string.reason_hint)) },
+                        placeholder = {
+                            Text(
+                                stringResource(R.string.reason_hint),
+                                fontFamily = FontFamily.Serif,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        },
                         modifier = Modifier
                             .padding(4.dp)
                             .padding(horizontal = 4.dp)
@@ -199,7 +207,8 @@ fun PhotoReasoningScreen(
                                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                                 )
                             } else {
-                                Toast.makeText(context,"Allow permission",Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Allow permission", Toast.LENGTH_SHORT)
+                                    .show()
                                 storagePermission.launchPermissionRequest()
                             }
                         },
@@ -209,21 +218,27 @@ fun PhotoReasoningScreen(
                             .weight(2F)
                             .background(color = Color.White)
                     ) {
-                        Text(text = "Add Image")
+                        Text(
+                            text = "Add Image",
+                            fontFamily = FontFamily.Serif,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                     }
 
                     if (imageUris.isNotEmpty()) {
                         TextButton(
-                            onClick = {
-                                imageUris.clear()
-                            },
+                            onClick = { imageUris.clear() },
                             modifier = Modifier
                                 .padding(4.dp)
                                 .clip(RoundedCornerShape(20.dp))
                                 .weight(2F)
                                 .background(color = Color.White)
                         ) {
-                            Text(text = "Clear selection")
+                            Text(
+                                text = "Clear selection",
+                                fontFamily = FontFamily.Serif,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
                         }
                     }
 
@@ -239,7 +254,11 @@ fun PhotoReasoningScreen(
                             .weight(1F)
                             .background(color = Color.White)
                     ) {
-                        Text(text = stringResource(id = R.string.action_go))
+                        Text(
+                            text = stringResource(id = R.string.action_go),
+                            fontFamily = FontFamily.Serif,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                     }
                 }
             }

@@ -5,15 +5,12 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -41,7 +38,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -117,7 +113,7 @@ fun SuccessLayout(outputText: String, textToCopy: String) {
                 MarkdownText(
                     markdown = outputText,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    style = TextStyle(fontFamily = FontFamily.SansSerif),
+                    style = TextStyle(fontFamily = FontFamily.Serif),
                     fontSize = 15.sp,
                     modifier = Modifier
                         .padding(horizontal = 6.dp, vertical = 8.dp)
@@ -145,7 +141,8 @@ fun ErrorLayout(errorMessage: String) {
         Text(
             text = errorMessage,
             color = MaterialTheme.colorScheme.error,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
+            fontFamily = FontFamily.Serif
         )
     }
 }
@@ -153,6 +150,7 @@ fun ErrorLayout(errorMessage: String) {
 @Preview(showBackground = true)
 @Composable
 fun DotLoadingAnimation(
+    modifier: Modifier = Modifier,
     circleColor: Color = MaterialTheme.colorScheme.primary,
     circleSize: Dp = 36.dp,
     animationDelay: Int = 400,
@@ -180,7 +178,7 @@ fun DotLoadingAnimation(
     }
 
     // Container for 3 Circles
-    Row {
+    Row(modifier = modifier) {
         circles.forEachIndexed { index, animatable ->
             if (index != 0) Spacer(Modifier.width(6.dp)) // Gap between circle
 

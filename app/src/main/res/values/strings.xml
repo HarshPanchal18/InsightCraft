@@ -2,15 +2,10 @@
     <string name="app_name">Insight Craft</string>
 
     <string name="action_go">Go</string>
-    <string name="action_try">Try it</string>
 
     <!-- Summarize sample strings -->
-    <string name="summarize_label">Text</string>
-    <string name="summarize_hint">Enter text to summarize</string>
 
-    <string name="reason_label">Question</string>
     <string name="reason_hint">Upload an image and then ask a question</string>
-    <string name="add_image">Add Image</string>
 
     <string name="menu_summarize_title">Generate text from text-only input</string>
     <string name="menu_summarize_description">Ask for assisting!</string>
@@ -22,6 +17,6 @@
     <string name="menu_reason_description">Upload images and asking about them!</string>
 
     <!-- Chat sample strings -->
-    <string name="chat_label">Ask anything...</string>
+    <string name="chat_label">Ask anything…</string>
     <string name="action_send">Send</string>
 </resources>

@@ -42,7 +42,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -101,7 +100,8 @@ fun SummarizedScreen(
                 placeholder = {
                     Text(
                         text = "What's cooking in your head?",
-                        fontFamily = FontFamily.SansSerif,
+                        fontFamily = FontFamily.Serif,
+                        style = MaterialTheme.typography.bodyLarge
                     )
                 },
                 modifier = Modifier
@@ -167,7 +167,8 @@ fun SummarizedScreen(
                         label = {
                             Text(
                                 text = suggestion,
-                                fontFamily = FontFamily.SansSerif
+                                fontFamily = FontFamily.Serif,
+                                style = MaterialTheme.typography.bodyLarge
                             )
                         },
                         colors = SuggestionChipDefaults.suggestionChipColors(
@@ -190,7 +191,8 @@ fun SummarizedScreen(
                     Text(
                         text = stringResource(id = R.string.action_go),
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        fontWeight = FontWeight.ExtraBold
+                        fontFamily = FontFamily.Serif,
+                        style = MaterialTheme.typography.bodyLarge
                     )
 
                     Spacer(modifier = Modifier.width(5.dp))
