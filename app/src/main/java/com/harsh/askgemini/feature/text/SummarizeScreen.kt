@@ -1,5 +1,6 @@
 package com.harsh.askgemini.feature.text
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -64,6 +65,7 @@ internal fun SummarizeRoute(
     val summarizeUiState by summarizeViewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
+    BackHandler { navController.popBackStack() }
     SummarizedScreen(uiState = summarizeUiState, navController = navController) { inputText ->
         coroutineScope.launch {
             summarizeViewModel.summarizeStreaming(inputText = inputText)

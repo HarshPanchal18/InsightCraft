@@ -2,6 +2,7 @@ package com.harsh.askgemini.feature.chat
 
 import android.Manifest
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -86,6 +87,7 @@ internal fun ChatRoute(
     val chatUiState by chatViewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    BackHandler { navController.popBackStack() }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.primary.copy(0.40F),

@@ -37,8 +37,8 @@ fun WindowNavigation() {
 }
 
 sealed class WindowNavigationItem(val route: String) {
-    data object Menu: WindowNavigationItem("menu")
-    data object Summarize: WindowNavigationItem("summarize")
-    data object Chat: WindowNavigationItem("chat")
-    data object PhotoReasoning: WindowNavigationItem("reasoning")
+    data object Menu : WindowNavigationItem("menu")
+    data object Summarize : WindowNavigationItem("summarize")
+    data object Chat : WindowNavigationItem("chat")
+    data object PhotoReasoning : WindowNavigationItem("reasoning")
 }
