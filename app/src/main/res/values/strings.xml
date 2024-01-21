@@ -5,7 +5,7 @@
 
     <!-- Summarize sample strings -->
 
-    <string name="reason_hint">Upload an image and then ask a question</string>
+    <string name="reason_hint">Put your query here…</string>
 
     <string name="menu_summarize_title">Generate text from text-only input</string>
     <string name="menu_summarize_description">Ask for assisting!</string>

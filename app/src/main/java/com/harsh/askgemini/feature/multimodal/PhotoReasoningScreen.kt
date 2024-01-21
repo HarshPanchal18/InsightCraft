@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -49,7 +50,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -153,7 +157,7 @@ fun PhotoReasoningScreen(
                         placeholder = {
                             Text(
                                 stringResource(R.string.reason_hint),
-                                fontFamily = FontFamily.Serif,
+                                fontFamily = FontFamily(Font(R.font.next_time)),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         },
@@ -198,10 +202,16 @@ fun PhotoReasoningScreen(
                                     )
                                 }
                             }
-                        }
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences,
+                            keyboardType = KeyboardType.Text,
+                            autoCorrect = true
+                        ),
                     )
-                }
+                } // TextField Row
 
+                // Button Row
                 Row(modifier = Modifier.padding(horizontal = 8.dp)) {
                     TextButton(
                         onClick = {
@@ -223,7 +233,7 @@ fun PhotoReasoningScreen(
                     ) {
                         Text(
                             text = "Add Image",
-                            fontFamily = FontFamily.Serif,
+                            fontFamily = FontFamily(Font(R.font.next_time)),
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
@@ -234,12 +244,12 @@ fun PhotoReasoningScreen(
                             modifier = Modifier
                                 .padding(4.dp)
                                 .clip(RoundedCornerShape(20.dp))
-                                .weight(2F)
+                                .weight(1F)
                                 .background(color = Color.White)
                         ) {
                             Text(
-                                text = "Clear selection",
-                                fontFamily = FontFamily.Serif,
+                                text = "Clear",
+                                fontFamily = FontFamily(Font(R.font.next_time)),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
@@ -259,13 +269,14 @@ fun PhotoReasoningScreen(
                     ) {
                         Text(
                             text = stringResource(id = R.string.action_go),
-                            fontFamily = FontFamily.Serif,
+                            fontFamily = FontFamily(Font(R.font.next_time)),
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
                 }
-            }
+            } // Input Box
 
+            // Image Row
             LazyRow(modifier = Modifier.padding(8.dp)) {
                 items(imageUris) { imageUri ->
                     AsyncImage(
@@ -302,5 +313,5 @@ fun PhotoReasoningScreen(
                 ErrorLayout(uiState.errorMessage)
             }
         }
-    }
+    } // Column
 }

@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Send
@@ -42,7 +43,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -102,7 +105,7 @@ fun SummarizedScreen(
                 placeholder = {
                     Text(
                         text = "What's cooking in your head?",
-                        fontFamily = FontFamily.Serif,
+                        fontFamily = FontFamily(Font(R.font.next_time, FontWeight.Bold)),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 },
@@ -176,7 +179,13 @@ fun SummarizedScreen(
                         colors = SuggestionChipDefaults.suggestionChipColors(
                             containerColor = Color.LightGray,
                             labelColor = Color.Black.copy(0.8F)
-                        )
+                        ),
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.AutoAwesome,
+                                contentDescription = "Chip Icon"
+                            )
+                        }
                     )
                 }
 
@@ -193,7 +202,7 @@ fun SummarizedScreen(
                     Text(
                         text = stringResource(id = R.string.action_go),
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        fontFamily = FontFamily.Serif,
+                        fontFamily = FontFamily(Font(R.font.next_time, FontWeight.Bold)),
                         style = MaterialTheme.typography.bodyLarge
                     )
 

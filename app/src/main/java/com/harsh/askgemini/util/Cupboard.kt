@@ -2,14 +2,29 @@ package com.harsh.askgemini.util
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import java.util.Locale
 
 object Cupboard {
-    const val apiKey = "YOUR_API_KEY" // https://makersuite.google.com/app/apikey
+    const val API_KEY = "userApiKey"
+    lateinit var sharedPreferences: SharedPreferences
+    private lateinit var apiKeyFromSharedPreferences: String
+
+    fun initPreference(context: Context) {
+        sharedPreferences = context.getSharedPreferences("InsightCraft", Context.MODE_PRIVATE)
+        apiKeyFromSharedPreferences = sharedPreferences.getString(API_KEY, "NOT_SET") ?: "NOT_SET"
+    }
+
+    fun getApiKey() = apiKeyFromSharedPreferences
 
     private val recommendList = listOf(
         "Can aging be reversed?",
@@ -44,11 +59,25 @@ object Cupboard {
     fun String.cleanedString() = this.replace(Regex("```[\\w+#]*\n"), "")
         .removeSuffix("\n```")
 
+    fun String.isValidApi(): Boolean {
+        return this.contains(Regex(pattern = "^([a-zA-Z0-9_-]{39})$"))
+    }
+
+    fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = composed {
+        clickable(indication = null,
+            interactionSource = remember { MutableInteractionSource() }) {
+            onClick()
+        }
+    }
+
     fun startSpeechToText(context: Context, onResult: (String) -> Unit) {
 
         val speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+            )
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
         }
 

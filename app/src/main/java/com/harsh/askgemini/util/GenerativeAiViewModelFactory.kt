@@ -9,6 +9,8 @@ import com.harsh.askgemini.feature.chat.ChatViewModel
 import com.harsh.askgemini.feature.multimodal.PhotoReasoningViewModel
 import com.harsh.askgemini.feature.text.SummarizeViewModel
 
+val apiKey = Cupboard.getApiKey()
+
 @Suppress("UNCHECKED_CAST")
 val GenerativeViewModelFactory = object : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
@@ -21,7 +23,7 @@ val GenerativeViewModelFactory = object : ViewModelProvider.Factory {
                     // Initialize a GenerativeModel with the `gemini-pro` AI model for text generation
                     val generativeModel = GenerativeModel(
                         modelName = "gemini-pro",
-                        apiKey = Cupboard.apiKey,
+                        apiKey = apiKey,
                         generationConfig = config
                     )
                     SummarizeViewModel(generativeModel)
@@ -31,7 +33,7 @@ val GenerativeViewModelFactory = object : ViewModelProvider.Factory {
                     // Initialize a GenerativeModel with the `gemini-pro` AI model for text generation
                     val generativeModel = GenerativeModel(
                         modelName = "gemini-pro",
-                        apiKey = Cupboard.apiKey,
+                        apiKey = apiKey,
                         generationConfig = config
                     )
                     ChatViewModel(generativeModel)
@@ -40,7 +42,7 @@ val GenerativeViewModelFactory = object : ViewModelProvider.Factory {
                 isAssignableFrom(PhotoReasoningViewModel::class.java) -> {
                     val generativeModel = GenerativeModel(
                         modelName = "gemini-pro-vision",
-                        apiKey = Cupboard.apiKey,
+                        apiKey = apiKey,
                         generationConfig = config
                     )
                     PhotoReasoningViewModel(generativeModel)

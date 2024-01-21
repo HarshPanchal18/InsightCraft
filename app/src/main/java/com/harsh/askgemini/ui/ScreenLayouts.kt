@@ -5,12 +5,15 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,24 +23,39 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowRight
+import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material.icons.outlined.BubbleChart
 import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -48,9 +66,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import com.harsh.askgemini.R
 import com.harsh.askgemini.data.Screen
+import com.harsh.askgemini.util.Cupboard
 import com.harsh.askgemini.util.Cupboard.cleanedString
+import com.harsh.askgemini.util.Cupboard.isValidApi
+import com.harsh.askgemini.util.Cupboard.noRippleClickable
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.delay
 
@@ -198,44 +220,175 @@ fun ScreenEntryCard(screen: Screen, background: Color, onItemClick: (String) -> 
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clip(RoundedCornerShape(25.dp)),
+            .clip(RoundedCornerShape(25.dp))
+            .background(brush = Brush.linearGradient(listOf(background.copy(0.6F), Color.DarkGray))),
         colors = CardDefaults.cardColors(
-            containerColor = background.copy(0.55F)
+            containerColor = background.copy(0.5F)
         )
     ) {
-
-        Column(
-            modifier = Modifier
-                .padding(all = 16.dp)
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = stringResource(screen.titleResId),
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                fontFamily = FontFamily(Font(R.font.lemony, FontWeight.ExtraBold)),
-                color = Color.Black.copy(0.85F),
-            )
-
-            Text(
-                text = stringResource(screen.descriptionResId),
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                fontFamily = FontFamily(Font(R.font.lemony, FontWeight.ExtraBold)),
-            )
-
-            Spacer(modifier = Modifier.weight(1F))
-
-            FloatingActionButton(
-                onClick = { onItemClick(screen.routeId) },
-                modifier = Modifier.align(Alignment.End),
+        Box {
+            Column(
+                modifier = Modifier
+                    .padding(all = 16.dp)
+                    .fillMaxWidth()
             ) {
+                Text(
+                    text = stringResource(screen.titleResId),
+                    style = MaterialTheme.typography.headlineLarge,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    fontFamily = FontFamily(Font(R.font.handshake)),
+                    color = Color.Black.copy(0.75F),
+                )
+
+                Text(
+                    text = stringResource(screen.descriptionResId),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                    fontFamily = FontFamily(Font(R.font.handshake)),
+                    color = Color.Black.copy(0.75F)
+                )
+
+                Spacer(modifier = Modifier.weight(1F))
+
+                FloatingActionButton(
+                    onClick = { onItemClick(screen.routeId) },
+                    modifier = Modifier.align(Alignment.End),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardDoubleArrowRight,
+                        contentDescription = "Go",
+                        tint = Color.Black.copy(0.75F)
+                    )
+                }
+            }
+
+            val openDialog = remember { mutableStateOf(false) }
+            val storedKey = Cupboard.getApiKey()
+
+            if (storedKey == "NOT_SET" || storedKey.length != 39 || openDialog.value)
+                ApiInputDialog(closeDialog = { openDialog.value = false })
+
+            Image(
+                imageVector = Icons.Outlined.BubbleChart, contentDescription = "Logo",
+                modifier = Modifier
+                    .padding(bottom = 10.dp)
+                    .fillMaxSize(0.38F)
+                    .align(Alignment.BottomStart)
+                    .noRippleClickable { openDialog.value = true }, // extension from utils
+                colorFilter = ColorFilter.tint(Color.White),
+                alpha = 0.4F
+            )
+
+        } // Box
+    } // Card
+}
+
+@Composable
+fun ApiInputDialog(closeDialog: () -> Unit = {}) {
+    var apiFromField by remember { mutableStateOf("") }
+    val preferenceEditor = Cupboard.sharedPreferences.edit()
+    val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
+
+    AlertDialog(
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Default.KeyboardDoubleArrowRight,
-                    contentDescription = "Go",
-                    tint = Color.Black.copy(0.75F)
+                    Icons.Default.VpnKey,
+                    contentDescription = "API key icon"
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = "Enter API key",
+                    fontFamily = FontFamily(Font(R.font.next_time, FontWeight.Bold)),
+                    style = MaterialTheme.typography.headlineMedium
                 )
             }
-        }
-    }
+        },
+
+        text = {
+            Column {
+                Text(
+                    text = "You need your personal API key to get started.",
+                    modifier = Modifier.padding(bottom = 10.dp),
+                    fontFamily = FontFamily(Font(R.font.next_time, FontWeight.Bold)),
+                    style = MaterialTheme.typography.titleLarge
+                )
+
+                TextField(
+                    value = apiFromField,
+                    onValueChange = { apiFromField = it },
+                    placeholder = {
+                        Text(
+                            text = "Paste your API key here...",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    },
+                    modifier = Modifier.clip(RoundedCornerShape(12.dp)),
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                    ),
+                    trailingIcon = {
+                        if (apiFromField.isNotEmpty()) {
+                            IconButton(onClick = { apiFromField = "" }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = null,
+                                    tint = Color.Black
+                                )
+                            }
+                        }
+                    }
+                )
+            }
+        },
+
+        confirmButton = {
+            Button(
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF68F51D).copy(0.6F),
+                    contentColor = Color.Black
+                ),
+                onClick = {
+                    if (apiFromField.isValidApi()) {
+                        preferenceEditor.putString(Cupboard.API_KEY, apiFromField).apply()
+                        Toast.makeText(context, "API set successfully", Toast.LENGTH_SHORT)
+                            .show()
+                    } else {
+                        uriHandler.openUri("https://makersuite.google.com/app/apikey")
+                    }
+                    closeDialog()
+                }) {
+                Text(
+                    text = if (apiFromField.isValidApi()) "Set key" else "Get key",
+                    fontFamily = FontFamily(Font(R.font.next_time)),
+                )
+            }
+        },
+
+        dismissButton = {
+            OutlinedButton(
+                onClick = { closeDialog() },
+                border = BorderStroke(1.5.dp, Color.Red.copy(0.8F)),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color.Red
+                )
+            ) {
+                Text(
+                    text = "Close",
+                    fontFamily = FontFamily(Font(R.font.next_time, FontWeight.Bold)),
+                )
+            }
+        },
+
+        onDismissRequest = { closeDialog() },
+
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true,
+            usePlatformDefaultWidth = true,
+            decorFitsSystemWindows = true
+        )
+    )
 }

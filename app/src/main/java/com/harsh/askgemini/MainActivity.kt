@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.harsh.askgemini.navigation.WindowNavigation
@@ -34,7 +35,7 @@ class MainActivity : ComponentActivity() {
                 val uiColor = MaterialTheme.colorScheme.primary.copy(0.6F)
                 val systemUiController = rememberSystemUiController()
 
-                systemUiController.setSystemBarsColor(color = uiColor)
+                systemUiController.setSystemBarsColor(color = Color.Gray)
 
                 // A surface container using the 'background' color from the theme
                 Surface(

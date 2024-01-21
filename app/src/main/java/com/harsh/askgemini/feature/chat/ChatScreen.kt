@@ -57,6 +57,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -168,7 +169,9 @@ fun ChatBubbleItem(message: ChatMessage) {
         Row {
             if (message.isPending)
                 DotLoadingAnimation(
-                    modifier = Modifier.align(Alignment.CenterVertically).padding(end = 8.dp),
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(end = 8.dp),
                     circleSize = 24.dp
                 )
 
@@ -221,8 +224,8 @@ fun Bubble(
                     label = {
                         Text(
                             text = " Copy",
-                            fontFamily = FontFamily.Serif
-                        )
+                            fontFamily = FontFamily(Font(R.font.next_time, FontWeight.Bold)),
+                            )
                     },
                     leadingIcon = {
                         Icon(
@@ -267,8 +270,8 @@ fun MessageInput(
             placeholder = {
                 Text(
                     stringResource(R.string.chat_label),
-                    fontFamily = FontFamily.Serif,//FontFamily(Font(R.font.lemony, FontWeight.Bold)),
-                    fontWeight = FontWeight.SemiBold
+                    fontFamily = FontFamily(Font(R.font.next_time, FontWeight.Bold)),
+                    style = MaterialTheme.typography.titleLarge
                 )
             },
             colors = TextFieldDefaults.colors(
@@ -356,9 +359,9 @@ fun TopAppBarOfChat(navController: NavHostController) {
         Spacer(modifier = Modifier.weight(1F))
 
         Text(
-            text = "Chat with AI",
-            fontFamily = FontFamily.Serif,
-            fontWeight = FontWeight.SemiBold,
+            text = "Chat with AI ",
+            fontFamily = FontFamily(Font(R.font.next_time, FontWeight.SemiBold)),
+            style = MaterialTheme.typography.titleLarge,
             color = Color.DarkGray,
             textAlign = TextAlign.Center
         )
