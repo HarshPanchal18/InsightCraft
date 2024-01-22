@@ -15,16 +15,22 @@ import androidx.compose.ui.composed
 import java.util.Locale
 
 object Cupboard {
-    const val API_KEY = "userApiKey"
-    lateinit var sharedPreferences: SharedPreferences
+    private const val API_KEY = "userApiKey"
+    private const val IS_NOT_SET = "NOT_SET"
+    private lateinit var sharedPreferences: SharedPreferences
     private lateinit var apiKeyFromSharedPreferences: String
 
     fun initPreference(context: Context) {
         sharedPreferences = context.getSharedPreferences("InsightCraft", Context.MODE_PRIVATE)
-        apiKeyFromSharedPreferences = sharedPreferences.getString(API_KEY, "NOT_SET") ?: "NOT_SET"
+        apiKeyFromSharedPreferences = sharedPreferences.getString(API_KEY, IS_NOT_SET) ?: IS_NOT_SET
     }
 
     fun getApiKey() = apiKeyFromSharedPreferences
+
+    fun setApiKey(apiKey:String) {
+        val editor = sharedPreferences.edit()
+        editor.putString(API_KEY, apiKey).apply()
+    }
 
     private val recommendList = listOf(
         "Can aging be reversed?",

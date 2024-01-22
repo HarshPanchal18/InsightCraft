@@ -221,9 +221,13 @@ fun ScreenEntryCard(screen: Screen, background: Color, onItemClick: (String) -> 
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .clip(RoundedCornerShape(25.dp))
-            .background(brush = Brush.linearGradient(listOf(background.copy(0.6F), Color.DarkGray))),
+            .background(
+                brush = Brush.linearGradient(
+                    listOf(background.copy(0.8F), Color.Black)
+                )
+            ),
         colors = CardDefaults.cardColors(
-            containerColor = background.copy(0.5F)
+            containerColor = background.copy(0.7F)
         )
     ) {
         Box {
@@ -234,17 +238,17 @@ fun ScreenEntryCard(screen: Screen, background: Color, onItemClick: (String) -> 
             ) {
                 Text(
                     text = stringResource(screen.titleResId),
-                    style = MaterialTheme.typography.headlineLarge,
+                    style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    fontFamily = FontFamily(Font(R.font.handshake)),
-                    color = Color.Black.copy(0.75F),
+                    fontFamily = FontFamily(Font(R.font.mavitya)),
+                    color = Color.Black.copy(0.8F),
                 )
 
                 Text(
                     text = stringResource(screen.descriptionResId),
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                    fontFamily = FontFamily(Font(R.font.handshake)),
+                    fontFamily = FontFamily(Font(R.font.mavitya)),
                     color = Color.Black.copy(0.75F)
                 )
 
@@ -263,9 +267,8 @@ fun ScreenEntryCard(screen: Screen, background: Color, onItemClick: (String) -> 
             }
 
             val openDialog = remember { mutableStateOf(false) }
-            val storedKey = Cupboard.getApiKey()
 
-            if (storedKey == "NOT_SET" || storedKey.length != 39 || openDialog.value)
+            if (openDialog.value)
                 ApiInputDialog(closeDialog = { openDialog.value = false })
 
             Image(
@@ -284,9 +287,8 @@ fun ScreenEntryCard(screen: Screen, background: Color, onItemClick: (String) -> 
 }
 
 @Composable
-fun ApiInputDialog(closeDialog: () -> Unit = {}) {
+fun ApiInputDialog(closeDialog: (isKeyValid: Boolean) -> Unit = {}) {
     var apiFromField by remember { mutableStateOf("") }
-    val preferenceEditor = Cupboard.sharedPreferences.edit()
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
 
@@ -300,7 +302,7 @@ fun ApiInputDialog(closeDialog: () -> Unit = {}) {
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = "Enter API key",
-                    fontFamily = FontFamily(Font(R.font.next_time, FontWeight.Bold)),
+                    fontFamily = FontFamily(Font(R.font.mavitya, FontWeight.Bold)),
                     style = MaterialTheme.typography.headlineMedium
                 )
             }
@@ -311,8 +313,8 @@ fun ApiInputDialog(closeDialog: () -> Unit = {}) {
                 Text(
                     text = "You need your personal API key to get started.",
                     modifier = Modifier.padding(bottom = 10.dp),
-                    fontFamily = FontFamily(Font(R.font.next_time, FontWeight.Bold)),
-                    style = MaterialTheme.typography.titleLarge
+                    fontFamily = FontFamily(Font(R.font.mavitya, FontWeight.Bold)),
+                    style = MaterialTheme.typography.titleMedium
                 )
 
                 TextField(
@@ -352,24 +354,29 @@ fun ApiInputDialog(closeDialog: () -> Unit = {}) {
                 ),
                 onClick = {
                     if (apiFromField.isValidApi()) {
-                        preferenceEditor.putString(Cupboard.API_KEY, apiFromField).apply()
-                        Toast.makeText(context, "API set successfully", Toast.LENGTH_SHORT)
-                            .show()
+                        Cupboard.setApiKey(apiKey = apiFromField)
+
+                        // Read the updated API key
+                        val updatedApiKey = Cupboard.getApiKey()
+                        val isApiKeyValid = updatedApiKey.length == 39
+
+                        closeDialog(isApiKeyValid)
+
+                        Toast.makeText(context, "API set successfully", Toast.LENGTH_SHORT).show()
                     } else {
                         uriHandler.openUri("https://makersuite.google.com/app/apikey")
                     }
-                    closeDialog()
                 }) {
                 Text(
                     text = if (apiFromField.isValidApi()) "Set key" else "Get key",
-                    fontFamily = FontFamily(Font(R.font.next_time)),
+                    fontFamily = FontFamily(Font(R.font.mavitya)),
                 )
             }
         },
 
         dismissButton = {
             OutlinedButton(
-                onClick = { closeDialog() },
+                onClick = { closeDialog(Cupboard.getApiKey().length == 39) },
                 border = BorderStroke(1.5.dp, Color.Red.copy(0.8F)),
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = Color.Red
@@ -377,12 +384,12 @@ fun ApiInputDialog(closeDialog: () -> Unit = {}) {
             ) {
                 Text(
                     text = "Close",
-                    fontFamily = FontFamily(Font(R.font.next_time, FontWeight.Bold)),
+                    fontFamily = FontFamily(Font(R.font.mavitya, FontWeight.Bold)),
                 )
             }
         },
 
-        onDismissRequest = { closeDialog() },
+        onDismissRequest = { closeDialog(Cupboard.getApiKey().length == 39) },
 
         properties = DialogProperties(
             dismissOnBackPress = true,

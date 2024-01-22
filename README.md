@@ -8,8 +8,8 @@ Insight Craft is an intuitive Android application that leverages Google's cuttin
 | Splash screen             | Home screen               | Summarize with AI         |
 |---------------------------|---------------------------|---------------------------|
 | ![](Photos/Splash.png)    | ![](Photos/Home.png)      | ![](Photos/Summarize.png) |
-| Chat with AI              | Photo Reasoning           |
-| ![](Photos/Chat.png)      | ![](Photos/Reasoning.png) |
+| Chat with AI              | Photo Reasoning           | API Input Dialog          |
+| ![](Photos/Chat.png)      | ![](Photos/Reasoning.png) | ![](Photos/API_Input.png) |
 
 ## Features
 - **Text Input Search:** Insight Craft allows users to input text for summarizing phrases and blogs using the powerful capabilities of the Gemini Pro AI model. This feature enables users to obtain concise and meaningful summaries of written content efficiently.
@@ -21,6 +21,7 @@ Insight Craft is integrated with Google's *Gemini Pro AI* model, which enables i
 
 ## Usage
 Users can simply download the Insight Craft app from release and experience the seamless integration of *Gemini Pro AI* capabilities to enhance their text search, chat interactions, and photo reasoning experiences.
+Users can update their API key by tapping on three circles from home screen. 
 
 ## How to Contribute
 Contributing is easy, and all skill levels are welcome! Here's how you can get started:

@@ -20,12 +20,11 @@ import com.harsh.askgemini.ui.theme.AskGeminiTheme
 
 class MainActivity : ComponentActivity() {
 
-    private val viewModel: SplashViewModel by viewModels()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S) {
+            val viewModel: SplashViewModel by viewModels()
             val splashScreen = installSplashScreen()
             splashScreen.setKeepOnScreenCondition { viewModel.isLoading.value }
         }

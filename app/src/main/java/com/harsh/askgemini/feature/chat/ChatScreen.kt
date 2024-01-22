@@ -3,6 +3,7 @@ package com.harsh.askgemini.feature.chat
 import android.Manifest
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowDown
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.BubbleChart
@@ -30,11 +32,13 @@ import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedAssistChip
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -42,6 +46,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -85,13 +90,32 @@ internal fun ChatRoute(
     navController: NavHostController,
 ) {
 
-    val chatUiState by chatViewModel.uiState.collectAsState()
-    val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
     BackHandler { navController.popBackStack() }
+    val chatUiState by chatViewModel.uiState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+    val listState = rememberLazyListState()
+    val isScrollingUp by remember { mutableStateOf(listState.firstVisibleItemIndex != 0) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.primary.copy(0.40F),
+        floatingActionButton = {
+            AnimatedVisibility(visible = !isScrollingUp) {
+                SmallFloatingActionButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            listState.scrollToItem(0)
+                        }
+                    },
+                    containerColor = Color.LightGray,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardDoubleArrowDown,
+                        contentDescription = ""
+                    )
+                }
+            }
+        },
+        floatingActionButtonPosition = FabPosition.Center,
         bottomBar = {
             MessageInput(
                 onSendMessage = { inputText ->
@@ -205,11 +229,10 @@ fun Bubble(
                 modifier = Modifier
                     .padding(all = 14.dp)
                     .clip(RoundedCornerShape(6.dp)),
-                style = TextStyle(
-                    fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.SemiBold
-                ),
-                lineHeight = 10.sp
+                style = TextStyle(fontFamily = FontFamily.Serif),
+                isTextSelectable = true,
+                lineHeight = 10.sp,
+                fontSize = MaterialTheme.typography.bodyLarge.fontSize
             )
 
             if (isModelMessage)
@@ -224,8 +247,8 @@ fun Bubble(
                     label = {
                         Text(
                             text = " Copy",
-                            fontFamily = FontFamily(Font(R.font.next_time, FontWeight.Bold)),
-                            )
+                            fontFamily = FontFamily(Font(R.font.mavitya, FontWeight.ExtraBold)),
+                        )
                     },
                     leadingIcon = {
                         Icon(
@@ -270,7 +293,7 @@ fun MessageInput(
             placeholder = {
                 Text(
                     stringResource(R.string.chat_label),
-                    fontFamily = FontFamily(Font(R.font.next_time, FontWeight.Bold)),
+                    fontFamily = FontFamily(Font(R.font.mavitya, FontWeight.Bold)),
                     style = MaterialTheme.typography.titleLarge
                 )
             },
@@ -360,7 +383,7 @@ fun TopAppBarOfChat(navController: NavHostController) {
 
         Text(
             text = "Chat with AI ",
-            fontFamily = FontFamily(Font(R.font.next_time, FontWeight.SemiBold)),
+            fontFamily = FontFamily(Font(R.font.mavitya, FontWeight.SemiBold)),
             style = MaterialTheme.typography.titleLarge,
             color = Color.DarkGray,
             textAlign = TextAlign.Center

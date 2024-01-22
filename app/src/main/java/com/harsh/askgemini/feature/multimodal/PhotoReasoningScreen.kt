@@ -157,7 +157,7 @@ fun PhotoReasoningScreen(
                         placeholder = {
                             Text(
                                 stringResource(R.string.reason_hint),
-                                fontFamily = FontFamily(Font(R.font.next_time)),
+                                fontFamily = FontFamily(Font(R.font.mavitya)),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         },
@@ -233,7 +233,7 @@ fun PhotoReasoningScreen(
                     ) {
                         Text(
                             text = "Add Image",
-                            fontFamily = FontFamily(Font(R.font.next_time)),
+                            fontFamily = FontFamily(Font(R.font.mavitya)),
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
@@ -249,7 +249,7 @@ fun PhotoReasoningScreen(
                         ) {
                             Text(
                                 text = "Clear",
-                                fontFamily = FontFamily(Font(R.font.next_time)),
+                                fontFamily = FontFamily(Font(R.font.mavitya)),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
@@ -269,7 +269,7 @@ fun PhotoReasoningScreen(
                     ) {
                         Text(
                             text = stringResource(id = R.string.action_go),
-                            fontFamily = FontFamily(Font(R.font.next_time)),
+                            fontFamily = FontFamily(Font(R.font.mavitya)),
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }

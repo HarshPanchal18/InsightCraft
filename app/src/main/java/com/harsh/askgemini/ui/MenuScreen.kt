@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -23,21 +25,31 @@ fun MenuScreen(onItemClicked: (String) -> Unit = {}) {
             routeId = "summarize",
             titleResId = R.string.menu_summarize_title,
             descriptionResId = R.string.menu_summarize_description,
-            backgroundColor = Color.Red
+            backgroundColor = Color(0xFFE03C39)
         ),
         Screen(
             routeId = "chat",
             titleResId = R.string.menu_chat_title,
             descriptionResId = R.string.menu_chat_description,
-            backgroundColor = Color.Yellow
+            backgroundColor = Color(0xFFFFC313)
         ),
         Screen(
             routeId = "reasoning",
             titleResId = R.string.menu_reason_title,
             descriptionResId = R.string.menu_reason_description,
-            backgroundColor = Color(0xFF68F51D)
+            backgroundColor = Color(0xFF4DC2D4)
         )
     )
+
+    val isApiValid = Cupboard.getApiKey().length == 39
+    val openDialog = remember { mutableStateOf(!isApiValid) }
+
+    if (openDialog.value)
+        ApiInputDialog(closeDialog = {
+            Cupboard.initPreference(context)
+            val newApiKey = Cupboard.getApiKey()
+            openDialog.value = newApiKey.length != 39
+        })
 
     Column(
         modifier = Modifier

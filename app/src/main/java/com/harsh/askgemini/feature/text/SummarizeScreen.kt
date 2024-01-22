@@ -105,7 +105,7 @@ fun SummarizedScreen(
                 placeholder = {
                     Text(
                         text = "What's cooking in your head?",
-                        fontFamily = FontFamily(Font(R.font.next_time, FontWeight.Bold)),
+                        fontFamily = FontFamily(Font(R.font.mavitya, FontWeight.Bold)),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 },
@@ -172,7 +172,7 @@ fun SummarizedScreen(
                         label = {
                             Text(
                                 text = suggestion,
-                                fontFamily = FontFamily.Serif,
+                                fontFamily = FontFamily(Font(R.font.mavitya)),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         },
@@ -202,7 +202,8 @@ fun SummarizedScreen(
                     Text(
                         text = stringResource(id = R.string.action_go),
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        fontFamily = FontFamily(Font(R.font.next_time, FontWeight.Bold)),
+                        fontFamily = FontFamily(Font(R.font.mavitya)),
+                        fontWeight = FontWeight.ExtraBold,
                         style = MaterialTheme.typography.bodyLarge
                     )
 
