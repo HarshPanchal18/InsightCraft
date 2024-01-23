@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
                 val uiColor = MaterialTheme.colorScheme.primary.copy(0.6F)
                 val systemUiController = rememberSystemUiController()
 
-                systemUiController.setSystemBarsColor(color = Color.Gray)
+                systemUiController.setSystemBarsColor(color = Color.LightGray)
 
                 // A surface container using the 'background' color from the theme
                 Surface(

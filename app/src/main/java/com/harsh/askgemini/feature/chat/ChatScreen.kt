@@ -232,7 +232,8 @@ fun Bubble(
                 style = TextStyle(fontFamily = FontFamily.Serif),
                 isTextSelectable = true,
                 lineHeight = 10.sp,
-                fontSize = MaterialTheme.typography.bodyLarge.fontSize
+                fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                color = MaterialTheme.colorScheme.tertiary
             )
 
             if (isModelMessage)
@@ -294,7 +295,8 @@ fun MessageInput(
                 Text(
                     stringResource(R.string.chat_label),
                     fontFamily = FontFamily(Font(R.font.mavitya, FontWeight.Bold)),
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.Black.copy(0.8F)
                 )
             },
             colors = TextFieldDefaults.colors(

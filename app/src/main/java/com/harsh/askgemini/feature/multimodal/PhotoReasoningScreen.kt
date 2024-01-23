@@ -136,6 +136,7 @@ fun PhotoReasoningScreen(
         } else {
             rememberPermissionState(permission = Manifest.permission.READ_EXTERNAL_STORAGE)
         }
+    val buttonContentColor = Color.Black.copy(0.8F)
 
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         Card(
@@ -158,7 +159,8 @@ fun PhotoReasoningScreen(
                             Text(
                                 stringResource(R.string.reason_hint),
                                 fontFamily = FontFamily(Font(R.font.mavitya)),
-                                style = MaterialTheme.typography.bodyLarge
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = Color.Black
                             )
                         },
                         modifier = Modifier
@@ -186,6 +188,7 @@ fun PhotoReasoningScreen(
                                 Icon(
                                     imageVector = Icons.Rounded.ChevronLeft,
                                     contentDescription = "Menu Screen",
+                                    tint = Color.Black
                                 )
                             }
                         },
@@ -234,7 +237,8 @@ fun PhotoReasoningScreen(
                         Text(
                             text = "Add Image",
                             fontFamily = FontFamily(Font(R.font.mavitya)),
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = buttonContentColor
                         )
                     }
 
@@ -250,7 +254,8 @@ fun PhotoReasoningScreen(
                             Text(
                                 text = "Clear",
                                 fontFamily = FontFamily(Font(R.font.mavitya)),
-                                style = MaterialTheme.typography.bodyLarge
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = buttonContentColor
                             )
                         }
                     }
@@ -270,7 +275,8 @@ fun PhotoReasoningScreen(
                         Text(
                             text = stringResource(id = R.string.action_go),
                             fontFamily = FontFamily(Font(R.font.mavitya)),
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = buttonContentColor
                         )
                     }
                 }

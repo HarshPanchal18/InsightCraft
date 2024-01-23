@@ -261,7 +261,6 @@ fun ScreenEntryCard(screen: Screen, background: Color, onItemClick: (String) -> 
                     Icon(
                         imageVector = Icons.Default.KeyboardDoubleArrowRight,
                         contentDescription = "Go",
-                        tint = Color.Black.copy(0.75F)
                     )
                 }
             }

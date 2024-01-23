@@ -106,7 +106,8 @@ fun SummarizedScreen(
                     Text(
                         text = "What's cooking in your head?",
                         fontFamily = FontFamily(Font(R.font.mavitya, FontWeight.Bold)),
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Black
                     )
                 },
                 modifier = Modifier
@@ -133,7 +134,8 @@ fun SummarizedScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowLeft,
-                            contentDescription = "Go back"
+                            contentDescription = "Go back",
+                            tint = Color.Black
                         )
                     }
                 },
@@ -183,7 +185,8 @@ fun SummarizedScreen(
                         icon = {
                             Icon(
                                 imageVector = Icons.Default.AutoAwesome,
-                                contentDescription = "Chip Icon"
+                                contentDescription = "Chip Icon",
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
                             )
                         }
                     )
