@@ -58,6 +58,14 @@ object Cupboard {
         "Suggest a workout routine for beginners",
     )
 
+    private val notificationMessageList = listOf("How the chocolate milk was originated?")
+
+    fun randomNotificationMessage(): String {
+        //val summarizeViewModel: SummarizeViewModel = viewModel(factory = GenerativeViewModelFactory)
+        //return summarizeViewModel.summarizeForNotification("Generate a single sentence of a general knowledge.")
+        return notificationMessageList.random()
+    }
+
     fun randomSuggestion(): String {
         return recommendList.random()
     }
