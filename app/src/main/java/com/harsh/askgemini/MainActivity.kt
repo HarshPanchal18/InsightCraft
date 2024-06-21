@@ -15,17 +15,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.harsh.askgemini.navigation.WindowNavigation
-import com.harsh.askgemini.notification.NotificationAlarmScheduler
-import com.harsh.askgemini.notification.ReminderItem
 import com.harsh.askgemini.ui.splash.SplashViewModel
 import com.harsh.askgemini.ui.theme.AskGeminiTheme
-import java.util.Calendar
 
 class MainActivity : ComponentActivity() {
-
-    private val notificationAlarmScheduler by lazy {
-        NotificationAlarmScheduler(this)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,15 +35,6 @@ class MainActivity : ComponentActivity() {
                 val systemUiController = rememberSystemUiController()
 
                 systemUiController.setSystemBarsColor(color = Color.LightGray)
-
-                val reminderItem = ReminderItem(
-                    time = Calendar.getInstance().apply {
-                        set(Calendar.HOUR_OF_DAY, 10)
-                        set(Calendar.MINUTE, 0)
-                    }.timeInMillis,
-                    id = 0
-                )
-                notificationAlarmScheduler.schedule(reminderItem)
 
                 // A surface container using the 'background' color from the theme
                 Surface(

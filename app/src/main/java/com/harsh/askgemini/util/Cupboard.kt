@@ -27,7 +27,7 @@ object Cupboard {
 
     fun getApiKey() = apiKeyFromSharedPreferences
 
-    fun setApiKey(apiKey:String) {
+    fun setApiKey(apiKey: String) {
         val editor = sharedPreferences.edit()
         editor.putString(API_KEY, apiKey).apply()
     }

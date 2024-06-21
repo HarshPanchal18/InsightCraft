@@ -12,8 +12,8 @@ class RunnerNotifier(
     private val context: Context
 ) : Notifier(notificationManager) {
 
-    override val notificationChannelId: String = "runner_channel_id"
-    override val notificationChannelName: String = "Running notification"
+    override val notificationChannelId: String = "gk_channel_id"
+    override val notificationChannelName: String = "GK notification"
     override val notificationId: Int = 200
 
     override fun buildNotification(): Notification {

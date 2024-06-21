@@ -14,7 +14,7 @@ class SummarizeViewModel(private val generativeModel: GenerativeModel) : ViewMod
         MutableStateFlow(SummarizeUiState.Initial)
     val uiState: StateFlow<SummarizeUiState> = _uiState.asStateFlow()
 
-    fun summarize(inputText: String) {
+    /*fun summarize(inputText: String) {
         _uiState.value = SummarizeUiState.Loading
 
         viewModelScope.launch {
@@ -42,7 +42,7 @@ class SummarizeViewModel(private val generativeModel: GenerativeModel) : ViewMod
             }
         }
         return null
-    }
+    }*/
 
     suspend fun summarizeStreaming(inputText: String) {
         _uiState.value = SummarizeUiState.Loading

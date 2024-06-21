@@ -14,10 +14,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.Icon
@@ -133,7 +133,7 @@ fun SummarizedScreen(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Default.KeyboardArrowLeft,
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                             contentDescription = "Go back",
                             tint = Color.Black
                         )
@@ -213,7 +213,7 @@ fun SummarizedScreen(
                     Spacer(modifier = Modifier.width(5.dp))
 
                     Icon(
-                        Icons.Default.Send,
+                        Icons.AutoMirrored.Filled.Send,
                         contentDescription = "Send Icon",
                         tint = MaterialTheme.colorScheme.onSecondaryContainer
                     )

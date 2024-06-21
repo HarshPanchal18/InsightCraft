@@ -3,7 +3,7 @@ package com.harsh.askgemini.feature.chat
 import android.Manifest
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -23,16 +23,15 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowDown
 import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.BubbleChart
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedAssistChip
-import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -46,18 +45,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -94,28 +92,9 @@ internal fun ChatRoute(
     val chatUiState by chatViewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
-    val isScrollingUp by remember { mutableStateOf(listState.firstVisibleItemIndex != 0) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.primary.copy(0.40F),
-        floatingActionButton = {
-            AnimatedVisibility(visible = !isScrollingUp) {
-                SmallFloatingActionButton(
-                    onClick = {
-                        coroutineScope.launch {
-                            listState.scrollToItem(0)
-                        }
-                    },
-                    containerColor = Color.LightGray,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.KeyboardDoubleArrowDown,
-                        contentDescription = ""
-                    )
-                }
-            }
-        },
-        floatingActionButtonPosition = FabPosition.Center,
         bottomBar = {
             MessageInput(
                 onSendMessage = { inputText ->
@@ -134,7 +113,7 @@ internal fun ChatRoute(
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
-            TopAppBarOfChat(navController = navController)
+            TopAppBarOfChat(navController = navController, listState = listState)
             ChatList(chatMessage = chatUiState.messages, listState = listState)
         }
     }
@@ -187,7 +166,7 @@ fun ChatBubbleItem(message: ChatMessage) {
     Column(
         horizontalAlignment = horizontalAlignment,
         modifier = Modifier
-            .padding(horizontal = 6.dp, vertical = 4.dp)
+            .padding(horizontal = 6.dp, vertical = 2.dp)
             .fillMaxWidth()
     ) {
         Row {
@@ -224,17 +203,30 @@ fun Bubble(
             modifier = Modifier.widthIn(min = 0.dp, max = maxWidth * 0.9F),
             colors = CardDefaults.cardColors(containerColor = backgroundColor)
         ) {
-            MarkdownText(
-                markdown = message,
-                modifier = Modifier
-                    .padding(all = 14.dp)
-                    .clip(RoundedCornerShape(6.dp)),
-                style = TextStyle(fontFamily = FontFamily.Serif),
-                isTextSelectable = true,
-                lineHeight = 10.sp,
-                fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                color = MaterialTheme.colorScheme.tertiary
-            )
+            if (isModelMessage) {
+                MarkdownText(
+                    markdown = message,
+                    modifier = Modifier
+                        .padding(all = 14.dp)
+                        .clip(RoundedCornerShape(6.dp)),
+                    style = TextStyle(fontFamily = FontFamily.Serif),
+                    isTextSelectable = true,
+                    lineHeight = 10.sp,
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+            } else {
+                Text(
+                    text = message,
+                    modifier = Modifier
+                        .padding(all = 14.dp)
+                        .clip(RoundedCornerShape(6.dp)),
+                    style = TextStyle(fontFamily = FontFamily.Serif),
+                    lineHeight = 20.sp,
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+            }
 
             if (isModelMessage)
                 ElevatedAssistChip(
@@ -264,7 +256,7 @@ fun Bubble(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MessageInput(
     onSendMessage: (String) -> Unit,
@@ -272,6 +264,7 @@ fun MessageInput(
 ) {
     var userMessage by rememberSaveable { mutableStateOf("") }
     val localKeyboardManager = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
     val context = LocalContext.current
     val audioPermission =
         rememberPermissionState(permission = Manifest.permission.RECORD_AUDIO)
@@ -279,18 +272,20 @@ fun MessageInput(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp, horizontal = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 6.dp, horizontal = 6.dp),
+        verticalAlignment = Alignment.Bottom
     ) {
         TextField(
             value = userMessage,
             onValueChange = { userMessage = it },
             shape = RoundedCornerShape(16.dp),
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+            maxLines = 4,
             modifier = Modifier
                 .fillMaxWidth()
+                .animateContentSize()
                 .weight(0.85F)
-                .padding(end = 10.dp),
+                .padding(end = 8.dp),
             placeholder = {
                 Text(
                     stringResource(R.string.chat_label),
@@ -318,6 +313,7 @@ fun MessageInput(
                         onSendMessage(userMessage); userMessage = ""
                         resetScroll()
                         localKeyboardManager?.hide()
+                        focusManager.clearFocus(force = true)
                     }
 
                     else -> {
@@ -344,7 +340,7 @@ fun MessageInput(
         ) {
             if (userMessage.isNotEmpty()) {
                 Icon(
-                    imageVector = Icons.Default.Send,
+                    imageVector = Icons.AutoMirrored.Filled.Send,
                     contentDescription = stringResource(id = R.string.action_send),
                     tint = Color.White.copy(0.9F)
                 )
@@ -360,12 +356,18 @@ fun MessageInput(
 }
 
 @Composable
-fun TopAppBarOfChat(navController: NavHostController) {
+fun TopAppBarOfChat(
+    navController: NavHostController,
+    listState: LazyListState,
+) {
+    val coroutineScope = rememberCoroutineScope()
+
     Row(
         modifier = Modifier
+            //.padding(bottom = 4.dp)
             .fillMaxWidth()
             .background(color = Color.White.copy(0.8F))
-            .padding(all = 4.dp) // Adjust padding as needed
+            //.padding(all = 4.dp) // Adjust padding as needed
             .height(IntrinsicSize.Min),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -375,7 +377,7 @@ fun TopAppBarOfChat(navController: NavHostController) {
             }
         }) {
             Icon(
-                imageVector = Icons.Default.KeyboardArrowLeft,
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                 contentDescription = null,
                 tint = Color.DarkGray
             )
@@ -400,10 +402,18 @@ fun TopAppBarOfChat(navController: NavHostController) {
 
         Spacer(modifier = Modifier.weight(1F))
 
-        IconButton(onClick = {
-            navController.navigate(WindowNavigationItem.Menu.route) {
-                popUpTo(WindowNavigationItem.Menu.route) { inclusive = true }
-            }
-        }, enabled = false) {}
+        SmallFloatingActionButton(
+            onClick = {
+                coroutineScope.launch {
+                    listState.scrollToItem(0)
+                }
+            },
+            containerColor = Color.LightGray,
+        ) {
+            Icon(
+                imageVector = Icons.Default.KeyboardDoubleArrowDown,
+                contentDescription = ""
+            )
+        }
     }
 }
