@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -43,11 +44,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
@@ -85,7 +86,7 @@ internal fun PhotoReasoningRoute(
     val imageRequestBuilder = ImageRequest.Builder(context)
     val imageLoader = ImageLoader.Builder(context).build()
 
-    BackHandler { navController.popBackStack() }
+    BackHandler { navController.navigateUp() }
 
     PhotoReasoningScreen(
         uiState = photoReasoningUiState,
@@ -114,7 +115,7 @@ internal fun PhotoReasoningRoute(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun PhotoReasoningScreen(
     uiState: PhotoReasoningUiState = PhotoReasoningUiState.Loading,
@@ -123,7 +124,8 @@ fun PhotoReasoningScreen(
 ) {
     val context = LocalContext.current
     var userQuestion by rememberSaveable { mutableStateOf("") }
-    val localKeyboardManager = LocalSoftwareKeyboardController.current
+    val keyboardManager = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
     val imageUris = rememberSaveable(saver = UriSaver()) { mutableStateListOf() }
     val pickMedia = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -141,15 +143,14 @@ fun PhotoReasoningScreen(
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         Card(
             modifier = Modifier
-                .padding(10.dp)
+                .padding(6.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(25.dp))
         ) {
             Column {
                 Row(
                     modifier = Modifier
-                        .padding(top = 10.dp)
-                        .padding(horizontal = 4.dp)
+                        .padding(top = 4.dp)
                 ) {
 
                     TextField(
@@ -174,14 +175,11 @@ fun PhotoReasoningScreen(
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
                         ),
+                        maxLines = 3,
                         leadingIcon = {
                             IconButton(
                                 onClick = {
-                                    navController.navigate(WindowNavigationItem.Menu.route) {
-                                        popUpTo(WindowNavigationItem.Menu.route) {
-                                            inclusive = true
-                                        }
-                                    }
+                                    navController.navigateUp()
                                 },
                                 modifier = Modifier.padding(all = 4.dp)
                             ) {
@@ -196,7 +194,7 @@ fun PhotoReasoningScreen(
                             if (userQuestion.isNotEmpty()) {
                                 IconButton(onClick = {
                                     userQuestion = ""
-                                    localKeyboardManager?.show()
+                                    keyboardManager?.show()
                                 }) {
                                     Icon(
                                         imageVector = Icons.Default.Close,
@@ -215,7 +213,7 @@ fun PhotoReasoningScreen(
                 } // TextField Row
 
                 // Button Row
-                Row(modifier = Modifier.padding(horizontal = 8.dp)) {
+                Row(modifier = Modifier.padding(horizontal = 4.dp)) {
                     TextButton(
                         onClick = {
                             if (storagePermission.status.isGranted) {
@@ -264,7 +262,8 @@ fun PhotoReasoningScreen(
                         onClick = {
                             if (userQuestion.isNotBlank())
                                 onReasonClicked(userQuestion, imageUris.toList())
-                            localKeyboardManager?.hide()
+                            keyboardManager?.hide()
+                            focusManager.clearFocus(force = true)
                         },
                         modifier = Modifier
                             .padding(4.dp)
@@ -283,14 +282,20 @@ fun PhotoReasoningScreen(
             } // Input Box
 
             // Image Row
-            LazyRow(modifier = Modifier.padding(8.dp)) {
+            LazyRow(
+                modifier = Modifier
+                    .padding(4.dp)
+                    .fillMaxWidth()
+            ) {
                 items(imageUris) { imageUri ->
                     AsyncImage(
                         model = imageUri,
                         contentDescription = null,
                         modifier = Modifier
-                            .padding(4.dp)
                             .requiredSize(125.dp)
+                            .wrapContentSize()
+                            .padding(4.dp)
+                            .clip(RoundedCornerShape(20.dp))
                     )
                 }
             }

@@ -5,11 +5,11 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -37,7 +37,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -73,7 +72,6 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.harsh.askgemini.R
-import com.harsh.askgemini.navigation.WindowNavigationItem
 import com.harsh.askgemini.ui.DotLoadingAnimation
 import com.harsh.askgemini.util.Cupboard.cleanedString
 import com.harsh.askgemini.util.Cupboard.startSpeechToText
@@ -88,7 +86,7 @@ internal fun ChatRoute(
     navController: NavHostController,
 ) {
 
-    BackHandler { navController.popBackStack() }
+    BackHandler { navController.navigateUp() }
     val chatUiState by chatViewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
@@ -364,17 +362,15 @@ fun TopAppBarOfChat(
 
     Row(
         modifier = Modifier
-            //.padding(bottom = 4.dp)
             .fillMaxWidth()
             .background(color = Color.White.copy(0.8F))
             //.padding(all = 4.dp) // Adjust padding as needed
             .height(IntrinsicSize.Min),
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         IconButton(onClick = {
-            navController.navigate(WindowNavigationItem.Menu.route) {
-                popUpTo(WindowNavigationItem.Menu.route) { inclusive = true }
-            }
+            navController.navigateUp()
         }) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
@@ -383,36 +379,33 @@ fun TopAppBarOfChat(
             )
         }
 
-        Spacer(modifier = Modifier.weight(1F))
+        Row {
+            Text(
+                text = "Chat with AI ",
+                fontFamily = FontFamily(Font(R.font.mavitya, FontWeight.SemiBold)),
+                style = MaterialTheme.typography.titleLarge,
+                color = Color.DarkGray,
+                textAlign = TextAlign.Center
+            )
+            Icon(
+                imageVector = Icons.Outlined.BubbleChart,
+                contentDescription = "Prompt icon",
+                tint = Color.DarkGray,
+                modifier = Modifier.requiredSize(24.dp)
+            )
+        }
 
-        Text(
-            text = "Chat with AI ",
-            fontFamily = FontFamily(Font(R.font.mavitya, FontWeight.SemiBold)),
-            style = MaterialTheme.typography.titleLarge,
-            color = Color.DarkGray,
-            textAlign = TextAlign.Center
-        )
-
-        Icon(
-            imageVector = Icons.Outlined.BubbleChart,
-            contentDescription = "Prompt icon",
-            tint = Color.DarkGray,
-            modifier = Modifier.requiredSize(24.dp)
-        )
-
-        Spacer(modifier = Modifier.weight(1F))
-
-        SmallFloatingActionButton(
+        IconButton(
             onClick = {
                 coroutineScope.launch {
                     listState.scrollToItem(0)
                 }
             },
-            containerColor = Color.LightGray,
         ) {
             Icon(
                 imageVector = Icons.Default.KeyboardDoubleArrowDown,
-                contentDescription = ""
+                contentDescription = "",
+                tint = Color.Black
             )
         }
     }

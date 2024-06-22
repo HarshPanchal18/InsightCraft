@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -219,7 +218,7 @@ fun ScreenEntryCard(screen: Screen, background: Color, onItemClick: (String) -> 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
             .clip(RoundedCornerShape(25.dp))
             .background(
                 brush = Brush.linearGradient(
@@ -233,13 +232,13 @@ fun ScreenEntryCard(screen: Screen, background: Color, onItemClick: (String) -> 
         Box {
             Column(
                 modifier = Modifier
-                    .padding(all = 16.dp)
+                    .padding(all = 12.dp)
                     .fillMaxWidth()
             ) {
                 Text(
                     text = stringResource(screen.titleResId),
                     style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                     fontFamily = FontFamily(Font(R.font.mavitya)),
                     color = Color.Black.copy(0.8F),
                 )
@@ -247,22 +246,25 @@ fun ScreenEntryCard(screen: Screen, background: Color, onItemClick: (String) -> 
                 Text(
                     text = stringResource(screen.descriptionResId),
                     style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                     fontFamily = FontFamily(Font(R.font.mavitya)),
                     color = Color.Black.copy(0.75F)
                 )
 
                 Spacer(modifier = Modifier.weight(1F))
 
-                FloatingActionButton(
-                    onClick = { onItemClick(screen.routeId) },
-                    modifier = Modifier.align(Alignment.End),
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.KeyboardDoubleArrowRight,
-                        contentDescription = "Go",
-                    )
-                }
+            }
+
+            FloatingActionButton(
+                onClick = { onItemClick(screen.routeId) },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 8.dp, bottom = 8.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.KeyboardDoubleArrowRight,
+                    contentDescription = "Go",
+                )
             }
 
             val openDialog = remember { mutableStateOf(false) }
@@ -273,8 +275,7 @@ fun ScreenEntryCard(screen: Screen, background: Color, onItemClick: (String) -> 
             Image(
                 imageVector = Icons.Outlined.BubbleChart, contentDescription = "Logo",
                 modifier = Modifier
-                    .padding(bottom = 10.dp)
-                    .fillMaxSize(0.38F)
+                    .size(80.dp)
                     .align(Alignment.BottomStart)
                     .noRippleClickable { openDialog.value = true }, // extension from utils
                 colorFilter = ColorFilter.tint(Color.White),

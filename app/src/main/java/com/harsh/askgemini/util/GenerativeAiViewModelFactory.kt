@@ -22,7 +22,7 @@ val GenerativeViewModelFactory = object : ViewModelProvider.Factory {
                 isAssignableFrom(SummarizeViewModel::class.java) -> {
                     // Initialize a GenerativeModel with the `gemini-pro` AI model for text generation
                     val generativeModel = GenerativeModel(
-                        modelName = "gemini-pro",
+                        modelName = "gemini-1.5-flash",
                         apiKey = apiKey,
                         generationConfig = config
                     )
@@ -32,7 +32,7 @@ val GenerativeViewModelFactory = object : ViewModelProvider.Factory {
                 isAssignableFrom(ChatViewModel::class.java) -> {
                     // Initialize a GenerativeModel with the `gemini-pro` AI model for text generation
                     val generativeModel = GenerativeModel(
-                        modelName = "gemini-pro",
+                        modelName = "gemini-1.5-flash",
                         apiKey = apiKey,
                         generationConfig = config
                     )
@@ -41,7 +41,7 @@ val GenerativeViewModelFactory = object : ViewModelProvider.Factory {
 
                 isAssignableFrom(PhotoReasoningViewModel::class.java) -> {
                     val generativeModel = GenerativeModel(
-                        modelName = "gemini-pro-vision",
+                        modelName = "gemini-1.5-flash",
                         apiKey = apiKey,
                         generationConfig = config
                     )

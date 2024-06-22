@@ -36,10 +36,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -52,7 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.harsh.askgemini.R
-import com.harsh.askgemini.navigation.WindowNavigationItem
 import com.harsh.askgemini.ui.DotLoadingAnimation
 import com.harsh.askgemini.ui.ErrorLayout
 import com.harsh.askgemini.ui.SuccessLayout
@@ -68,7 +67,7 @@ internal fun SummarizeRoute(
     val summarizeUiState by summarizeViewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
-    BackHandler { navController.popBackStack() }
+    BackHandler { navController.navigateUp() }
     SummarizedScreen(uiState = summarizeUiState, navController = navController) { inputText ->
         coroutineScope.launch {
             summarizeViewModel.summarizeStreaming(inputText = inputText)
@@ -78,7 +77,6 @@ internal fun SummarizeRoute(
 
 var textCopyHolder: String = "" // Holding generated content to make copy to clipboard
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SummarizedScreen(
     uiState: SummarizeUiState = SummarizeUiState.Loading,
@@ -87,16 +85,17 @@ fun SummarizedScreen(
 ) {
     var textToSummarize by rememberSaveable { mutableStateOf("") }
     var suggestion = rememberSaveable { randomSuggestion() }
-    val localKeyboardManager = LocalSoftwareKeyboardController.current
+    val keyboardManager = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
 
     Column(
         modifier = Modifier.verticalScroll(rememberScrollState())
     ) {
         ElevatedCard(
             modifier = Modifier
-                .padding(10.dp)
+                .padding(all = 8.dp)
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(25.dp)),
+                .clip(RoundedCornerShape(24.dp)),
             shape = MaterialTheme.shapes.large,
         ) {
             TextField(
@@ -110,6 +109,7 @@ fun SummarizedScreen(
                         color = Color.Black
                     )
                 },
+                maxLines = 4,
                 modifier = Modifier
                     .padding(12.dp)
                     .fillMaxWidth()
@@ -125,11 +125,7 @@ fun SummarizedScreen(
                 leadingIcon = {
                     IconButton(
                         onClick = {
-                            navController.navigate(WindowNavigationItem.Menu.route) {
-                                popUpTo(WindowNavigationItem.Menu.route) {
-                                    inclusive = true
-                                }
-                            }
+                            navController.navigateUp()
                         }
                     ) {
                         Icon(
@@ -143,7 +139,7 @@ fun SummarizedScreen(
                     if (textToSummarize.isNotEmpty()) {
                         IconButton(onClick = {
                             textToSummarize = ""
-                            localKeyboardManager?.show()
+                            keyboardManager?.show()
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Close, contentDescription = null,
@@ -175,7 +171,8 @@ fun SummarizedScreen(
                             Text(
                                 text = suggestion,
                                 fontFamily = FontFamily(Font(R.font.mavitya)),
-                                style = MaterialTheme.typography.bodyLarge
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.padding(vertical = 3.dp)
                             )
                         },
                         colors = SuggestionChipDefaults.suggestionChipColors(
@@ -186,9 +183,9 @@ fun SummarizedScreen(
                             Icon(
                                 imageVector = Icons.Default.AutoAwesome,
                                 contentDescription = "Chip Icon",
-                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                tint = Color.Black
                             )
-                        }
+                        },
                     )
                 }
 
@@ -198,7 +195,8 @@ fun SummarizedScreen(
                             onSummarizeClicked(textToSummarize)
 
                         suggestion = randomSuggestion()
-                        localKeyboardManager?.hide()
+                        keyboardManager?.hide()
+                        focusManager.clearFocus(force = true)
                     },
                     modifier = Modifier.padding(horizontal = 5.dp)
                 ) {
