@@ -27,21 +27,23 @@ class SummarizeViewModel(private val generativeModel: GenerativeModel) : ViewMod
                 _uiState.value = SummarizeUiState.Error(errorMessage = e.localizedMessage ?: "")
             }
         }
-    }
+    }*/
 
-    fun summarizeForNotification(inputText: String): String? {
+    /*fun summarizeForNotification(inputText: String): String? {
+        var facts: String? = null
         viewModelScope.launch {
             try {
                 val response = generativeModel.generateContent(inputText)
                 response.text?.let { outputText ->
-                    _uiState.value = SummarizeUiState.Success(outputText = outputText)
-                    outputText
+                    //_uiState.value = SummarizeUiState.Success(outputText = outputText)
+                    facts = outputText
                 }
             } catch (e: Exception) {
-                _uiState.value = SummarizeUiState.Error(errorMessage = e.localizedMessage ?: "")
+                //_uiState.value = SummarizeUiState.Error(errorMessage = e.localizedMessage ?: "")
+                facts = e.localizedMessage
             }
         }
-        return null
+        return facts
     }*/
 
     suspend fun summarizeStreaming(inputText: String) {

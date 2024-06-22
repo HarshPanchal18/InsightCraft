@@ -67,7 +67,6 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.harsh.askgemini.R
-import com.harsh.askgemini.navigation.WindowNavigationItem
 import com.harsh.askgemini.ui.DotLoadingAnimation
 import com.harsh.askgemini.ui.ErrorLayout
 import com.harsh.askgemini.ui.SuccessLayout
